@@ -1,0 +1,42 @@
+<mjml>
+  <mj-head>
+    <mj-title>Welcome to {{company_name}}</mj-title>
+    <mj-attributes>
+      <mj-all font-family="Inter, Helvetica, Arial, sans-serif" />
+      <mj-text color="#1f2937" font-size="14px" line-height="1.5" />
+    </mj-attributes>
+  </mj-head>
+  <mj-body background-color="#f8fafc">
+    <mj-section background-color="{{brand_color}}" padding="32px 24px">
+      <mj-column>
+        <mj-text color="#ffffff" font-size="22px" font-weight="600">{{company_name}}</mj-text>
+        <mj-text color="rgba(255,255,255,0.85)" font-size="13px">HR Onboarding</mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section background-color="#ffffff" padding="32px 24px">
+      <mj-column>
+        <mj-text font-size="20px" font-weight="600">Welcome, {{candidate_name}}.</mj-text>
+        <mj-text>We're excited to have you join the <strong>{{team}}</strong> team as <strong>{{role}}</strong> on {{joining_date}}.</mj-text>
+        <mj-divider border-color="#e2e8f0" />
+
+        <mj-text font-size="16px" font-weight="600" padding-bottom="8px">Your first day</mj-text>
+        <mj-text>Report to {{office_address}} at 9:30 AM. Ask reception for {{manager_name}}.</mj-text>
+
+        <mj-text font-size="16px" font-weight="600" padding-top="16px" padding-bottom="8px">Your buddy</mj-text>
+        <mj-text>{{buddy_name}} ({{buddy_email}}) — they'll reach out to you in the next few days.</mj-text>
+
+        <mj-text font-size="16px" font-weight="600" padding-top="16px" padding-bottom="8px">Software & tools day 1</mj-text>
+        <mj-text>{{entitlements}}</mj-text>
+
+        <mj-text font-size="16px" font-weight="600" padding-top="16px" padding-bottom="8px">Documents we need from you</mj-text>
+        <mj-text>{{documents}}</mj-text>
+
+        {{accommodation_section}}
+
+        <mj-divider border-color="#e2e8f0" padding-top="24px" />
+        <mj-text color="#64748b" font-size="12px">If anything's unclear, reply to this email. — HR @ {{company_name}}</mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

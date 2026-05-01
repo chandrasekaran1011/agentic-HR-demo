@@ -1,0 +1,29 @@
+<mjml>
+  <mj-head>
+    <mj-title>You're {{candidate_name}}'s onboarding buddy</mj-title>
+    <mj-attributes>
+      <mj-all font-family="Inter, Helvetica, Arial, sans-serif" />
+      <mj-text color="#1f2937" font-size="14px" line-height="1.5" />
+    </mj-attributes>
+  </mj-head>
+  <mj-body background-color="#f8fafc">
+    <mj-section background-color="{{brand_color}}" padding="24px">
+      <mj-column>
+        <mj-text color="#ffffff" font-size="18px" font-weight="600">Buddy assignment</mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section background-color="#ffffff" padding="24px">
+      <mj-column>
+        <mj-text>Hi {{buddy_name}},</mj-text>
+        <mj-text>You've been matched as <strong>{{candidate_name}}</strong>'s onboarding buddy. They join the {{team}} team on {{joining_date}}.</mj-text>
+        <mj-text font-weight="600" padding-top="12px">What we'd love you to do</mj-text>
+        <mj-text>
+          • Send a hello message before day 1<br/>
+          • Schedule a coffee chat in their first week<br/>
+          • Be available for "where do I find X" questions for the first month
+        </mj-text>
+        <mj-text color="#64748b" font-size="12px" padding-top="16px">— HR @ {{company_name}}</mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
