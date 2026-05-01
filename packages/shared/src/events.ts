@@ -1,4 +1,4 @@
-import type { SystemName, TileStatus } from "./types.js";
+import type { SystemName, TileStatus } from "./types";
 
 export type AgentEventType =
   | "tile.update"

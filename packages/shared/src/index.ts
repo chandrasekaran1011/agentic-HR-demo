@@ -1,3 +1,3 @@
-export * from "./types.js";
-export * from "./events.js";
-export * from "./master-data-schemas.js";
+export * from "./types";
+export * from "./events";
+export * from "./master-data-schemas";
