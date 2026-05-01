@@ -21,10 +21,13 @@ export async function renderTemplate(name: string, vars: Record<string, string>)
   for (const [k, v] of Object.entries(vars)) {
     raw = raw.replaceAll(`{{${k}}}`, escapeHtml(v));
   }
-  const compiled = mjml2html(raw, { validationLevel: "soft" }) as unknown as {
-    html: string;
-    errors?: { message?: string }[];
-  };
+  // mjml v5 made mjml2html async — await it.
+  const compiled = (await (mjml2html as unknown as (
+    s: string,
+    o?: unknown
+  ) => Promise<{ html: string; errors?: { message?: string }[] }>)(raw, {
+    validationLevel: "soft",
+  }));
   if (compiled.errors && compiled.errors.length > 0) {
     console.warn(`[email/render] mjml warnings for ${name}:`, compiled.errors);
   }
