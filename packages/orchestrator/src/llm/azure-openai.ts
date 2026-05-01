@@ -11,14 +11,25 @@ interface ChatConfig {
   deployment: string;
 }
 
+// Normalize a possibly-pasted endpoint. Azure portal sometimes shows the
+// endpoint with the full request path; the SDK wants just the resource base.
+//   https://foo.cognitiveservices.azure.com/openai/responses?api-version=…
+// ⇒ https://foo.cognitiveservices.azure.com
+function normalizeEndpoint(raw: string | undefined): string | undefined {
+  if (!raw) return undefined;
+  return raw.trim().replace(/\/openai\/.*$/i, "").replace(/\/+$/, "");
+}
+
 function readChatConfig(): ChatConfig | null {
-  const endpoint = process.env.AZURE_OPENAI_CHAT_ENDPOINT ?? process.env.AZURE_OPENAI_ENDPOINT;
-  const apiKey = process.env.AZURE_OPENAI_CHAT_API_KEY ?? process.env.AZURE_OPENAI_API_KEY;
+  const endpoint = normalizeEndpoint(
+    process.env.AZURE_OPENAI_CHAT_ENDPOINT ?? process.env.AZURE_OPENAI_ENDPOINT
+  );
+  const apiKey = (process.env.AZURE_OPENAI_CHAT_API_KEY ?? process.env.AZURE_OPENAI_API_KEY)?.trim();
   const apiVersion =
     process.env.AZURE_OPENAI_CHAT_API_VERSION ?? process.env.AZURE_OPENAI_API_VERSION ?? "2024-10-21";
-  const deployment = process.env.AZURE_OPENAI_CHAT_DEPLOYMENT;
+  const deployment = process.env.AZURE_OPENAI_CHAT_DEPLOYMENT?.trim();
   if (!endpoint || !apiKey || !deployment) return null;
-  return { endpoint, apiKey, apiVersion, deployment };
+  return { endpoint, apiKey, apiVersion: apiVersion.trim(), deployment };
 }
 
 let client: AzureOpenAI | null = null;
@@ -164,15 +175,18 @@ export interface RealtimeConfig {
 }
 
 export function readRealtimeConfig(): RealtimeConfig | null {
-  const endpoint =
-    process.env.AZURE_OPENAI_REALTIME_ENDPOINT ?? process.env.AZURE_OPENAI_ENDPOINT;
-  const apiKey =
-    process.env.AZURE_OPENAI_REALTIME_API_KEY ?? process.env.AZURE_OPENAI_API_KEY;
-  const apiVersion =
+  const endpoint = normalizeEndpoint(
+    process.env.AZURE_OPENAI_REALTIME_ENDPOINT ?? process.env.AZURE_OPENAI_ENDPOINT
+  );
+  const apiKey = (
+    process.env.AZURE_OPENAI_REALTIME_API_KEY ?? process.env.AZURE_OPENAI_API_KEY
+  )?.trim();
+  const apiVersion = (
     process.env.AZURE_OPENAI_REALTIME_API_VERSION ??
     process.env.AZURE_OPENAI_API_VERSION ??
-    "2024-10-01-preview";
-  const deployment = process.env.AZURE_OPENAI_REALTIME_DEPLOYMENT;
+    "2025-04-01-preview"
+  ).trim();
+  const deployment = process.env.AZURE_OPENAI_REALTIME_DEPLOYMENT?.trim();
   if (!endpoint || !apiKey || !deployment) return null;
   return { endpoint, apiKey, apiVersion, deployment };
 }

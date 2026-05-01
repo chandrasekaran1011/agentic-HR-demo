@@ -17,16 +17,31 @@ export interface SendEmailResult {
 
 let client: EmailClient | null = null;
 
-function getClient(): EmailClient {
+// Azure Communication Services connection strings have the shape
+//   endpoint=https://<resource>.communication.azure.com/;accesskey=<key>
+// Some Azure portals expose just the URL+accesskey without the `endpoint=`
+// prefix; we re-add it so the SDK accepts the value either way.
+function normalizeConnString(raw: string): string {
+  const trimmed = raw.trim();
+  if (/^endpoint=/i.test(trimmed)) return trimmed;
+  if (/^https?:\/\//i.test(trimmed)) return `endpoint=${trimmed}`;
+  return trimmed;
+}
+
+function normalizeSender(raw: string | undefined): string | undefined {
+  if (!raw) return undefined;
+  // Strip trailing whitespace + commas (commonly pasted in from .env.example)
+  return raw.replace(/[\s,]+$/, "").trim();
+}
+
+function getClient(conn: string): EmailClient {
   if (client) return client;
-  const conn = process.env.AZURE_COMM_CONNECTION_STRING;
-  if (!conn) throw new Error("AZURE_COMM_CONNECTION_STRING not set");
-  client = new EmailClient(conn);
+  client = new EmailClient(normalizeConnString(conn));
   return client;
 }
 
 export async function sendEmail(opts: SendEmailOpts): Promise<SendEmailResult> {
-  const sender = process.env.AZURE_COMM_SENDER_ADDRESS;
+  const sender = normalizeSender(process.env.AZURE_COMM_SENDER_ADDRESS);
   const conn = process.env.AZURE_COMM_CONNECTION_STRING;
 
   if (!sender || !conn) {
@@ -48,7 +63,7 @@ export async function sendEmail(opts: SendEmailOpts): Promise<SendEmailResult> {
   // not fail the cascade — the rest of the agent's work is still valid.
   // We log + emit email.sent with delivered:false so the UI can reflect it.
   try {
-    const c = getClient();
+    const c = getClient(conn);
     const poller = await c.beginSend({
       senderAddress: sender,
       content: {

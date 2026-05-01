@@ -237,7 +237,8 @@ app.get("/voice/session", async (_req, reply) => {
   }
 
   // Create an ephemeral session via Azure Realtime sessions API.
-  const url = `${cfg.endpoint.replace(/\/$/, "")}/openai/realtime/sessions?api-version=${cfg.apiVersion}`;
+  // Note: path is `/openai/realtimeapi/sessions` (preview API), NOT `/openai/realtime/sessions`.
+  const url = `${cfg.endpoint.replace(/\/$/, "")}/openai/realtimeapi/sessions?api-version=${cfg.apiVersion}`;
   const res = await fetch(url, {
     method: "POST",
     headers: { "api-key": cfg.apiKey, "content-type": "application/json" },
