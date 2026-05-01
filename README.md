@@ -4,7 +4,7 @@ Multi-agent HR onboarding demo for a 3000-person townhall.
 
 ## Status
 
-**Phase 3 of 4 complete.** Chat sidebar (text) + voice agent (Azure OpenAI Realtime) both wired, sharing the same three tools and the same conversation thread. Mock-LLM fallback when keys aren't set. **Phase 4 = polish + master-data admin UI.**
+**Phase 4 of 4 complete.** Master-data admin UI (Role × Software matrix screen is the hero), animated big-number reveals on `/admin`, `npm run rehearse` pre-flight script. The demo is stage-ready.
 
 See [docs/superpowers/specs/2026-05-01-hr-onboarding-agent-demo-design.md](docs/superpowers/specs/2026-05-01-hr-onboarding-agent-demo-design.md) for the full design.
 
@@ -121,10 +121,45 @@ deploy/docker-compose*.yml    redis + portal + orchestrator
 e2e/                          playwright tests
 ```
 
-## What Phase 4 will add
+## Demo day checklist
 
-- Master data admin UI (Role × Software / Training matrix screens)
-- Big-number reveal animation on `/admin`
-- Polish on animations, spacing, typography (frontend-design skill pass)
-- `npm run rehearse` mock-LLM dry-run script
-- Final demo prep checklist + day-of script
+```
+T-30 minutes
+  □ npm run reset                       flush + reseed
+  □ npm run orchestrator                terminal 1 (port 3001)
+  □ npm run portal                      terminal 2 (port 3000)
+  □ npm run rehearse                    pre-flight: pings every Azure resource +
+                                        runs a real cascade end-to-end. Must pass.
+  □ Browser fullscreen on /candidates
+  □ Charge laptop, plug in close-talking mic
+  □ Disable OS notifications except inbox toast
+  □ Test voice mic: "What's the status of Priya Sharma?" → should hear Sara reply
+  □ npm run reset                       fresh state for the live run
+
+T-0
+  Act 1 — status lookup (chat or voice):
+    "What is the status of Priya Sharma?"
+  Act 2 — onboard new joiner (chat or voice):
+    "Onboard Karan Shah, Senior Frontend Engineer, AI Platform team, joining May 12"
+    → confirm details → cascade fires → 12 tiles flip green
+  Act 3 — mic-drop correction:
+    "Actually, Karan is joining AI Infrastructure, not AI Platform"
+    → affected tiles re-amend → re-flip green
+  Act 4 — closing reveal:
+    Click /admin → big-number reveals animate in
+    Voice: "Anything else?" / "Thank you" / "My pleasure."
+
+Recovery
+  - F5 to reload — all state in Redis, no data loss
+  - "Onboard manually" button on candidates table is a fallback path
+```
+
+## Master data admin UI
+
+Visit `/admin/master-data` to edit the rules the agent uses:
+
+- **Roles** — list of role IDs, families, levels
+- **Software catalog** — what we license org-wide
+- **Role × Software matrix** ★ — checkbox grid; toggle a cell, the next cascade applies it
+- **Training matrix** — required + recommended courses per role family
+- **Teams** — floor, manager, buddy pool, parking eligibility

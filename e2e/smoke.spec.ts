@@ -24,7 +24,7 @@ test.describe("Phase 1 smoke", () => {
 
     await page.goto("/admin");
     await expect(page.getByRole("heading", { name: "Admin Dashboard" })).toBeVisible();
-    await expect(page.getByText("Total candidates")).toBeVisible();
+    await expect(page.getByText("Onboardings completed")).toBeVisible();
 
     await page.goto("/systems/hrms");
     await expect(page.getByRole("heading", { name: "HRMS" })).toBeVisible();
