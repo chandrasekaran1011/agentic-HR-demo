@@ -8,6 +8,20 @@ services:
       timeout: 3s
       retries: 5
 
+  orchestrator:
+    build:
+      context: ..
+      dockerfile: packages/orchestrator/Dockerfile
+    ports: ["3001:3001"]
+    env_file: ../.env
+    environment:
+      REDIS_URL: redis://redis:6379
+      MASTER_DATA_DIR: /app/master-data
+      SEED_DATA_DIR: /app/seed-data
+    depends_on:
+      redis:
+        condition: service_healthy
+
   portal:
     build:
       context: ..
@@ -18,6 +32,9 @@ services:
       REDIS_URL: redis://redis:6379
       MASTER_DATA_DIR: /app/master-data
       SEED_DATA_DIR: /app/seed-data
+      ORCHESTRATOR_URL: http://orchestrator:3001
     depends_on:
       redis:
         condition: service_healthy
+      orchestrator:
+        condition: service_started

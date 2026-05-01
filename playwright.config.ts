@@ -2,7 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./e2e",
-  timeout: 30_000,
+  timeout: 60_000,
   fullyParallel: false,
   retries: 0,
   workers: 1,
@@ -17,10 +17,18 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
     },
   ],
-  webServer: {
-    command: "npm --workspace=portal run dev",
-    url: "http://localhost:3000/login",
-    reuseExistingServer: true,
-    timeout: 60_000,
-  },
+  webServer: [
+    {
+      command: "npm --workspace=orchestrator run dev",
+      url: "http://localhost:3001/health",
+      reuseExistingServer: true,
+      timeout: 60_000,
+    },
+    {
+      command: "npm --workspace=portal run dev",
+      url: "http://localhost:3000/login",
+      reuseExistingServer: true,
+      timeout: 60_000,
+    },
+  ],
 });

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Candidate } from "@hr-agent/shared";
 import {
@@ -13,6 +13,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useSseEvents, type AgentEvent } from "@/components/use-sse-events";
 
 const statusVariant: Record<Candidate["status"], string> = {
   pending: "bg-slate-700 text-slate-200",
@@ -21,8 +23,54 @@ const statusVariant: Record<Candidate["status"], string> = {
 };
 
 export function CandidatesTable({ initialData }: { initialData: Candidate[] }) {
-  const [candidates] = useState<Candidate[]>(initialData);
+  const [candidates, setCandidates] = useState<Candidate[]>(initialData);
+  const [busy, setBusy] = useState<string | null>(null);
   const router = useRouter();
+
+  // Subscribe to all candidate.update events (no candidate_id filter)
+  useEffect(() => {
+    const es = new EventSource("/api/events");
+    es.onmessage = (e) => {
+      try {
+        const event = JSON.parse(e.data) as AgentEvent;
+        if (event.type === "candidate.update") {
+          const payload = event.payload as { progress?: number; status?: Candidate["status"] };
+          setCandidates((prev) =>
+            prev.map((c) =>
+              c.id === event.candidate_id
+                ? { ...c, progress: payload.progress ?? c.progress, status: payload.status ?? c.status }
+                : c
+            )
+          );
+        }
+      } catch {}
+    };
+    return () => es.close();
+  }, []);
+
+  async function onboard(c: Candidate, e: React.MouseEvent) {
+    e.stopPropagation();
+    setBusy(c.id);
+    await fetch("/api/run", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        candidate: {
+          id: c.id,
+          name: c.name,
+          email: c.email,
+          role: c.role,
+          team: c.team,
+          manager: c.manager,
+          joining_date: c.joining_date,
+          current_city: c.current_city,
+          photo_url: c.photo_url,
+        },
+      }),
+    });
+    setBusy(null);
+    router.push(`/candidates/${c.id}`);
+  }
 
   return (
     <Table>
@@ -34,6 +82,7 @@ export function CandidatesTable({ initialData }: { initialData: Candidate[] }) {
           <TableHead>Joining</TableHead>
           <TableHead>Status</TableHead>
           <TableHead>Progress</TableHead>
+          <TableHead></TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -57,6 +106,18 @@ export function CandidatesTable({ initialData }: { initialData: Candidate[] }) {
               </Badge>
             </TableCell>
             <TableCell>{c.progress}/12</TableCell>
+            <TableCell>
+              {c.status === "pending" && (
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={busy === c.id}
+                  onClick={(e) => onboard(c, e)}
+                >
+                  {busy === c.id ? "Starting…" : "Onboard"}
+                </Button>
+              )}
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>

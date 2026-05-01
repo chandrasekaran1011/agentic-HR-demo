@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { getCompany } from "@/lib/company";
+import { InboxPreview } from "@/components/inbox-preview";
 
 export async function generateMetadata(): Promise<Metadata> {
   const c = getCompany();
@@ -11,6 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const company = getCompany();
+  const demoMode = process.env.DEMO_MODE === "true";
   return (
     <html lang="en">
       <body
@@ -18,6 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         style={{ ["--brand" as string]: company.brandColor }}
       >
         {children}
+        <InboxPreview enabled={demoMode} />
       </body>
     </html>
   );

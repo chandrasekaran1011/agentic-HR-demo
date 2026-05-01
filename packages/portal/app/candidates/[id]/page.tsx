@@ -5,6 +5,8 @@ import { getCandidate, getTiles, getAudit } from "@/lib/seed-candidates";
 import { ProfileHeader } from "./profile-header";
 import { TileGrid } from "./tile-grid";
 import { AuditTrail } from "./audit-trail";
+import { ReasoningStream } from "@/components/reasoning-stream";
+import { Stopwatch } from "@/components/stopwatch";
 
 export const dynamic = "force-dynamic";
 
@@ -27,8 +29,15 @@ export default async function CandidateDetailPage({
         <Link href="/candidates" className="text-sm text-slate-400 hover:text-slate-200">
           ◀ Back to candidates
         </Link>
-        <ProfileHeader candidate={candidate} />
-        <TileGrid tiles={tiles} />
+        <div className="flex items-start justify-between">
+          <ProfileHeader candidate={candidate} />
+          <Stopwatch candidateId={id} />
+        </div>
+        <TileGrid candidateId={id} initialTiles={tiles} />
+        <div>
+          <h2 className="text-lg font-semibold mb-4">Reasoning</h2>
+          <ReasoningStream candidateId={id} />
+        </div>
         <div>
           <h2 className="text-lg font-semibold mb-4">Audit trail</h2>
           <AuditTrail entries={audit} />

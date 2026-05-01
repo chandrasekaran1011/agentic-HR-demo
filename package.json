@@ -4,10 +4,12 @@
   "private": true,
   "workspaces": ["packages/*"],
   "scripts": {
-    "dev": "docker compose -f deploy/docker-compose.dev.yml up -d && npm --workspace=portal run dev",
+    "dev": "docker compose -f deploy/docker-compose.dev.yml up -d && (npm --workspace=orchestrator run dev & npm --workspace=portal run dev) && wait",
     "build": "npm --workspace=shared run build && npm --workspace=portal run build",
     "test": "npm --workspaces --if-present run test",
     "test:e2e": "playwright test",
+    "orchestrator": "npm --workspace=orchestrator run dev",
+    "portal": "npm --workspace=portal run dev",
     "seed": "tsx scripts/seed.ts",
     "reset": "bash scripts/reset-demo.sh",
     "redis": "docker compose -f deploy/docker-compose.dev.yml up -d",
