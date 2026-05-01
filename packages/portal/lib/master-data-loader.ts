@@ -14,11 +14,12 @@ import {
   type Role,
 } from "@hr-agent/shared";
 
-const MASTER_DATA_DIR =
-  process.env.MASTER_DATA_DIR ?? path.join(process.cwd(), "..", "..", "master-data");
+function masterDataDir(): string {
+  return process.env.MASTER_DATA_DIR ?? path.join(process.cwd(), "..", "..", "master-data");
+}
 
 async function readJson<T>(file: string, schema: z.ZodType<T>): Promise<T[]> {
-  const raw = await fs.readFile(path.join(MASTER_DATA_DIR, file), "utf-8");
+  const raw = await fs.readFile(path.join(masterDataDir(), file), "utf-8");
   const parsed = JSON.parse(raw);
   return z.array(schema).parse(parsed);
 }

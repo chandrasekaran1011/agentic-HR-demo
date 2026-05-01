@@ -11,11 +11,12 @@ import {
   type SystemName,
 } from "@hr-agent/shared";
 
-const SEED_DIR =
-  process.env.SEED_DATA_DIR ?? path.join(process.cwd(), "..", "..", "seed-data");
+function seedDir(): string {
+  return process.env.SEED_DATA_DIR ?? path.join(process.cwd(), "..", "..", "seed-data");
+}
 
 export async function loadSeedCandidates(): Promise<void> {
-  const raw = await fs.readFile(path.join(SEED_DIR, "candidates.json"), "utf-8");
+  const raw = await fs.readFile(path.join(seedDir(), "candidates.json"), "utf-8");
   const seeds = z.array(CandidateSeedSchema).parse(JSON.parse(raw));
 
   const r = getRedis();
