@@ -1,0 +1,9 @@
+[
+  { "role_id": "sr_be", "software_ids": ["m365", "slack", "copilot", "datadog", "jira", "aws", "terraform", "k8s_lens"] },
+  { "role_id": "jr_be", "software_ids": ["m365", "slack", "copilot", "jira", "aws"] },
+  { "role_id": "sr_fe", "software_ids": ["m365", "slack", "copilot", "datadog", "jira", "figma"] },
+  { "role_id": "sr_ds", "software_ids": ["m365", "slack", "copilot", "datadog", "tableau"] },
+  { "role_id": "pm_data", "software_ids": ["m365", "slack", "jira", "tableau"] },
+  { "role_id": "designer", "software_ids": ["m365", "slack", "figma"] },
+  { "role_id": "devops", "software_ids": ["m365", "slack", "copilot", "datadog", "aws", "terraform", "k8s_lens"] }
+]

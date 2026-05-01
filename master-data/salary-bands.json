@@ -1,0 +1,8 @@
+[
+  { "role_family": "engineering", "level": "senior", "band": "L5" },
+  { "role_family": "engineering", "level": "junior", "band": "L3" },
+  { "role_family": "data", "level": "senior", "band": "L5" },
+  { "role_family": "infrastructure", "level": "senior", "band": "L5" },
+  { "role_family": "product", "level": "senior", "band": "L5" },
+  { "role_family": "design", "level": "senior", "band": "L5" }
+]

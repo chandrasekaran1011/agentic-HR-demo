@@ -1,0 +1,7 @@
+[
+  {
+    "country": "IN",
+    "role_type": "fulltime",
+    "documents": ["PAN card", "Aadhaar", "Address proof", "10th marksheet", "12th marksheet", "Degree certificate", "Previous employer relieving letter", "Bank passbook copy"]
+  }
+]

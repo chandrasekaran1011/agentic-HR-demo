@@ -1,0 +1,7 @@
+[
+  { "role_family": "engineering", "required": ["Onboarding 101", "Security 101"], "recommended": ["Backend Bootcamp", "Code Review Best Practices"] },
+  { "role_family": "data", "required": ["Onboarding 101", "Security 101", "Data Privacy"], "recommended": ["Tableau Fundamentals"] },
+  { "role_family": "infrastructure", "required": ["Onboarding 101", "Security 101", "Production Readiness"], "recommended": ["K8s Bootcamp"] },
+  { "role_family": "product", "required": ["Onboarding 101", "Security 101"], "recommended": ["Product Sense"] },
+  { "role_family": "design", "required": ["Onboarding 101", "Security 101"], "recommended": ["Design System 101"] }
+]

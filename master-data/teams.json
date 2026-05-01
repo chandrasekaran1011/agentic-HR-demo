@@ -1,0 +1,51 @@
+[
+  {
+    "id": "ai_platform",
+    "name": "AI Platform",
+    "floor": 3,
+    "wing": "east",
+    "manager": "Sneha Roy",
+    "manager_email": "sneha.roy@acme.com",
+    "buddy_pool": [
+      { "name": "Rohan Desai", "email": "rohan.desai@acme.com", "role_family": "engineering", "tenure_years": 3 },
+      { "name": "Ankit Verma", "email": "ankit.verma@acme.com", "role_family": "engineering", "tenure_years": 2 }
+    ],
+    "parking_eligibility": "all"
+  },
+  {
+    "id": "ai_infrastructure",
+    "name": "AI Infrastructure",
+    "floor": 5,
+    "wing": "north",
+    "manager": "Karthik Rao",
+    "manager_email": "karthik.rao@acme.com",
+    "buddy_pool": [
+      { "name": "Meera Krishnan", "email": "meera.krishnan@acme.com", "role_family": "infrastructure", "tenure_years": 4 }
+    ],
+    "parking_eligibility": "all"
+  },
+  {
+    "id": "data",
+    "name": "Data",
+    "floor": 4,
+    "wing": "west",
+    "manager": "Anjali Mehta",
+    "manager_email": "anjali.mehta@acme.com",
+    "buddy_pool": [
+      { "name": "Vikram Iyer", "email": "vikram.iyer@acme.com", "role_family": "data", "tenure_years": 2 }
+    ],
+    "parking_eligibility": "senior_only"
+  },
+  {
+    "id": "design",
+    "name": "Design",
+    "floor": 2,
+    "wing": "east",
+    "manager": "Priya Nambiar",
+    "manager_email": "priya.nambiar@acme.com",
+    "buddy_pool": [
+      { "name": "Aanya Patel", "email": "aanya.patel@acme.com", "role_family": "design", "tenure_years": 1 }
+    ],
+    "parking_eligibility": "all"
+  }
+]

@@ -1,0 +1,12 @@
+[
+  { "id": "m365", "name": "Microsoft 365", "category": "productivity" },
+  { "id": "slack", "name": "Slack", "category": "collaboration" },
+  { "id": "copilot", "name": "GitHub Copilot", "category": "engineering" },
+  { "id": "datadog", "name": "Datadog", "category": "observability" },
+  { "id": "jira", "name": "Jira", "category": "project-management" },
+  { "id": "tableau", "name": "Tableau", "category": "analytics" },
+  { "id": "figma", "name": "Figma", "category": "design" },
+  { "id": "aws", "name": "AWS Console", "category": "infrastructure" },
+  { "id": "terraform", "name": "Terraform Cloud", "category": "infrastructure" },
+  { "id": "k8s_lens", "name": "Kubernetes Lens", "category": "infrastructure" }
+]

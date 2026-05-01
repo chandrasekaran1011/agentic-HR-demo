@@ -1,0 +1,9 @@
+[
+  { "id": "sr_be", "name": "Senior Backend Engineer", "family": "engineering", "level": "senior" },
+  { "id": "jr_be", "name": "Junior Backend Engineer", "family": "engineering", "level": "junior" },
+  { "id": "sr_fe", "name": "Senior Frontend Engineer", "family": "engineering", "level": "senior" },
+  { "id": "sr_ds", "name": "Senior Data Scientist", "family": "data", "level": "senior" },
+  { "id": "pm_data", "name": "PM, Data", "family": "product", "level": "senior" },
+  { "id": "designer", "name": "Senior Designer", "family": "design", "level": "senior" },
+  { "id": "devops", "name": "DevOps Engineer", "family": "infrastructure", "level": "senior" }
+]
