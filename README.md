@@ -62,13 +62,14 @@ See [`.env.example`](.env.example) for the full list. Key ones:
 | Variable | Required for | Notes |
 |---|---|---|
 | `COMPANY_NAME`, `COMPANY_BRAND_COLOR`, … | Branding | Threaded into UI + email templates |
-| `AZURE_OPENAI_ENDPOINT` + `_API_KEY` | Real LLM | Both chat and voice use this |
-| `AZURE_OPENAI_CHAT_DEPLOYMENT` | Text chat | Your deployment name (gpt-4o, gpt-5, etc.) |
-| `AZURE_OPENAI_REALTIME_DEPLOYMENT` | Voice | Your realtime deployment (e.g. gpt-4o-realtime-preview) |
+| `AZURE_OPENAI_CHAT_ENDPOINT` + `_API_KEY` + `_API_VERSION` + `_DEPLOYMENT` | Text chat | Foundry chat resource (gpt-5, gpt-4o, etc.) |
+| `AZURE_OPENAI_REALTIME_ENDPOINT` + `_API_KEY` + `_API_VERSION` + `_DEPLOYMENT` | Voice | Foundry realtime resource (often a different region) |
 | `AZURE_COMM_CONNECTION_STRING` + `_SENDER_ADDRESS` | Real email | Mock fallback otherwise |
 | `TAVILY_API_KEY` | Relocation hotel suggestions | Welcome email enrichment |
 
-After editing `.env`, restart `npm run portal` and `npm run orchestrator` — Next.js does not hot-reload env vars.
+Chat and voice may live on **different Azure resources** with different endpoints, keys, API versions, and deployments. Each set is read independently. Legacy `AZURE_OPENAI_ENDPOINT` / `AZURE_OPENAI_API_KEY` still work as a fallback when chat and voice share a single resource.
+
+After editing `.env`, copy to `packages/portal/.env` and `packages/orchestrator/.env`, then restart `npm run portal` and `npm run orchestrator` — Next.js does not hot-reload env vars.
 
 ## Auth
 

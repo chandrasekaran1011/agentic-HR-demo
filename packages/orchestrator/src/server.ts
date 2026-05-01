@@ -5,7 +5,7 @@ import type { ChatCompletionMessageParam } from "openai/resources/chat/completio
 import { runOnboarding, amendOnboarding } from "./supervisor/run-cascade";
 import { getRedis } from "./lib/redis";
 import { AGENT_TOOLS, executeToolCall } from "./agent-tools/index.js";
-import { chatComplete, isMockMode } from "./llm/azure-openai";
+import { chatComplete, isMockMode, readRealtimeConfig } from "./llm/azure-openai";
 import { getCompany } from "./lib/company";
 
 const app = Fastify({ logger: { level: process.env.LOG_LEVEL ?? "info" } });
@@ -224,30 +224,24 @@ app.post("/chat", async (req, reply) => {
 // ─── Voice session minting ───────────────────────────────────────
 
 app.get("/voice/session", async (_req, reply) => {
-  // For Azure OpenAI Realtime, the browser uses an ephemeral key from the
-  // /sessions endpoint. We expose enough config for the client to negotiate
-  // the WebRTC connection directly.
-  if (isMockMode()) {
+  // Realtime config is independent from chat — different endpoint/key/version
+  // common when chat and realtime live on different Azure AI Foundry resources.
+  const cfg = readRealtimeConfig();
+  if (!cfg) {
     return reply.send({
       mock: true,
-      message: "Realtime API mock mode — voice will not work without AZURE_OPENAI_API_KEY.",
+      message:
+        "Voice mock mode — set AZURE_OPENAI_REALTIME_ENDPOINT, _API_KEY, and _DEPLOYMENT to enable.",
     });
-  }
-  const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
-  const apiKey = process.env.AZURE_OPENAI_API_KEY;
-  const deployment = process.env.AZURE_OPENAI_REALTIME_DEPLOYMENT;
-  const apiVersion = process.env.AZURE_OPENAI_API_VERSION ?? "2024-10-01-preview";
-  if (!endpoint || !apiKey || !deployment) {
-    return reply.code(500).send({ error: "AZURE_OPENAI_REALTIME_DEPLOYMENT or related env not set" });
   }
 
   // Create an ephemeral session via Azure Realtime sessions API.
-  const url = `${endpoint.replace(/\/$/, "")}/openai/realtime/sessions?api-version=${apiVersion}`;
+  const url = `${cfg.endpoint.replace(/\/$/, "")}/openai/realtime/sessions?api-version=${cfg.apiVersion}`;
   const res = await fetch(url, {
     method: "POST",
-    headers: { "api-key": apiKey, "content-type": "application/json" },
+    headers: { "api-key": cfg.apiKey, "content-type": "application/json" },
     body: JSON.stringify({
-      model: deployment,
+      model: cfg.deployment,
       voice: "alloy",
       instructions: chatSystemPrompt(),
       tools: AGENT_TOOLS.map((t) => ({
@@ -264,9 +258,9 @@ app.get("/voice/session", async (_req, reply) => {
   }
   const session = await res.json();
   return reply.send({
-    endpoint,
-    deployment,
-    apiVersion,
+    endpoint: cfg.endpoint,
+    deployment: cfg.deployment,
+    apiVersion: cfg.apiVersion,
     session,
   });
 });
