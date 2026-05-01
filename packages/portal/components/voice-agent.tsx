@@ -77,6 +77,21 @@ export function useVoiceAgent(opts: UseVoiceAgentOptions) {
       dc.onopen = () => {
         setConnected(true);
         setState("listening");
+        // Ask Sara to greet first.
+        try {
+          dc.send(
+            JSON.stringify({
+              type: "response.create",
+              response: {
+                modalities: ["audio", "text"],
+                instructions:
+                  "Greet the user with exactly: 'Hi, I'm Sara, your onboarding assistant. How can I help you today?' Then wait for them to respond.",
+              },
+            })
+          );
+        } catch (e) {
+          console.warn("[voice] failed to send greeting", e);
+        }
       };
       dc.onclose = () => {
         setConnected(false);
@@ -86,8 +101,14 @@ export function useVoiceAgent(opts: UseVoiceAgentOptions) {
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
 
+      // SDP exchange happens on Microsoft's region-specific WebRTC endpoint,
+      // not on the Azure resource endpoint. The orchestrator returns the URL
+      // (auto-derived from region or via AZURE_OPENAI_REALTIME_WEBRTC_URL).
+      if (!tokenData.webrtcUrl) {
+        throw new Error("orchestrator did not return webrtcUrl");
+      }
       const sdpRes = await fetch(
-        `${tokenData.endpoint.replace(/\/$/, "")}/openai/realtime?api-version=${tokenData.apiVersion}&deployment=${tokenData.deployment}`,
+        `${tokenData.webrtcUrl}?model=${encodeURIComponent(tokenData.deployment)}`,
         {
           method: "POST",
           headers: {
@@ -97,7 +118,10 @@ export function useVoiceAgent(opts: UseVoiceAgentOptions) {
           body: offer.sdp,
         }
       );
-      if (!sdpRes.ok) throw new Error("SDP exchange failed: " + sdpRes.status);
+      if (!sdpRes.ok) {
+        const detail = await sdpRes.text().catch(() => "");
+        throw new Error(`SDP exchange failed: ${sdpRes.status} ${detail.slice(0, 200)}`);
+      }
       const answerSdp = await sdpRes.text();
       await pc.setRemoteDescription({ type: "answer", sdp: answerSdp });
     } catch (err) {

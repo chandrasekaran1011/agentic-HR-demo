@@ -130,6 +130,28 @@ app.post("/lookup", async (req, reply) => {
 
 // ─── Chat (text agent shared with voice) ─────────────────────────
 
+// ─── Voice persona: Sara ─────────────────────────────────────────
+
+function voiceSystemPrompt(): string {
+  const c = getCompany();
+  return `You are Sara, the HR Onboarding Voice Assistant for ${c.name}.
+
+When the conversation starts, greet the user warmly with EXACTLY this opening line:
+"Hi, I'm Sara, your onboarding assistant. How can I help you today?"
+
+After greeting, listen and help. You have three tools:
+  - lookup_status(name_or_id) — to answer status questions
+  - start_onboarding(...) — to begin a new joiner onboarding
+  - amend_onboarding(name, changes) — to modify an existing onboarding
+
+Style: warm, professional, brief. Speak in clear English. Office is in ${c.officeCity}.
+Today's date is ${new Date().toISOString().slice(0, 10)}.
+
+Confirm key details (name, role, team, joining date) back to the user BEFORE calling start_onboarding.
+When tools succeed, summarize the result in one short sentence.
+On "thank you" / "goodbye", reply briefly and warmly. Do not invent further actions.`;
+}
+
 function chatSystemPrompt(): string {
   const c = getCompany();
   return `You are the HR Onboarding Agent for ${c.name}.
@@ -237,7 +259,7 @@ app.get("/voice/session", async (_req, reply) => {
   }
 
   // Create an ephemeral session via Azure Realtime sessions API.
-  // Note: path is `/openai/realtimeapi/sessions` (preview API), NOT `/openai/realtime/sessions`.
+  // Note: path is `/openai/realtimeapi/sessions` (preview), NOT `/openai/realtime/sessions`.
   const url = `${cfg.endpoint.replace(/\/$/, "")}/openai/realtimeapi/sessions?api-version=${cfg.apiVersion}`;
   const res = await fetch(url, {
     method: "POST",
@@ -245,7 +267,7 @@ app.get("/voice/session", async (_req, reply) => {
     body: JSON.stringify({
       model: cfg.deployment,
       voice: "alloy",
-      instructions: chatSystemPrompt(),
+      instructions: voiceSystemPrompt(),
       tools: AGENT_TOOLS.map((t) => ({
         type: "function",
         name: t.function.name,
@@ -259,13 +281,59 @@ app.get("/voice/session", async (_req, reply) => {
     return reply.code(res.status).send({ error: "session mint failed", detail: text });
   }
   const session = await res.json();
+
+  // WebRTC SDP exchange happens at a SEPARATE region-specific URL hosted by
+  // Microsoft (not on the Azure resource endpoint). Pattern:
+  //   https://{region}.realtimeapi-preview.ai.azure.com/v1/realtimertc
+  // Allow override via env; otherwise auto-detect from the resource hostname.
+  const explicit = process.env.AZURE_OPENAI_REALTIME_WEBRTC_URL?.trim();
+  let webrtcUrl: string;
+  if (explicit) {
+    webrtcUrl = explicit;
+  } else {
+    const region = inferRegionFromEndpoint(cfg.endpoint);
+    if (!region) {
+      return reply
+        .code(500)
+        .send({
+          error:
+            "Cannot derive realtime WebRTC URL — set AZURE_OPENAI_REALTIME_WEBRTC_URL explicitly (e.g. https://eastus2.realtimeapi-preview.ai.azure.com/v1/realtimertc).",
+        });
+    }
+    webrtcUrl = `https://${region}.realtimeapi-preview.ai.azure.com/v1/realtimertc`;
+  }
+
   return reply.send({
     endpoint: cfg.endpoint,
     deployment: cfg.deployment,
     apiVersion: cfg.apiVersion,
+    webrtcUrl,
     session,
   });
 });
+
+// Infer Azure region from a Cognitive Services endpoint hostname.
+//   chand-moml63wo-eastus2.cognitiveservices.azure.com → "eastus2"
+//   foo.eastus2.cognitiveservices.azure.com           → "eastus2"
+function inferRegionFromEndpoint(endpoint: string): string | null {
+  // Sorted longest-first so "eastus2" matches before "eastus".
+  const KNOWN = [
+    "germanywestcentral", "switzerlandnorth", "southafricanorth",
+    "northcentralus", "southcentralus", "westcentralus",
+    "australiaeast", "francecentral", "swedencentral", "koreacentral",
+    "centralindia", "southindia", "westindia",
+    "northeurope", "westeurope", "southeastasia",
+    "canadacentral", "canadaeast", "brazilsouth",
+    "japaneast", "japanwest", "eastasia", "uaenorth",
+    "eastus2", "westus2", "westus3", "uksouth", "ukwest", "centralus",
+    "eastus", "westus",
+  ];
+  const host = new URL(endpoint).hostname.toLowerCase();
+  for (const r of KNOWN) {
+    if (host.includes(r)) return r;
+  }
+  return null;
+}
 
 // Voice tool execution endpoint — browser forwards a tool_call to here.
 app.post("/voice/tool", async (req, reply) => {
