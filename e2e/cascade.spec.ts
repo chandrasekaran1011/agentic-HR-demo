@@ -25,11 +25,11 @@ test.describe("Phase 2 cascade", () => {
     await expect(page).toHaveURL(/\/candidates\/karan-shah/);
     await expect(page.getByRole("heading", { name: "Karan Shah" })).toBeVisible();
 
-    // Wait for all 12 "done" labels (one per tile). The grid renders one tile
-    // per system; each "done" string is unique enough.
+    // Wait for all 12 "done" labels (one per tile). Real ACS/Tavily calls
+    // add latency, so allow up to 90s.
     await expect(async () => {
       const doneCount = await page.getByText("done", { exact: true }).count();
       expect(doneCount).toBeGreaterThanOrEqual(12);
-    }).toPass({ timeout: 30_000 });
+    }).toPass({ timeout: 90_000 });
   });
 });

@@ -1,11 +1,11 @@
 import Fastify from "fastify";
 import { z } from "zod";
 import type { Candidate } from "@hr-agent/shared";
-import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import { runOnboarding, amendOnboarding } from "./supervisor/run-cascade";
 import { getRedis } from "./lib/redis";
 import { AGENT_TOOLS, executeToolCall } from "./agent-tools/index.js";
-import { chatComplete, isMockMode, readRealtimeConfig } from "./llm/azure-openai";
+import { runAgentTurn, readRealtimeConfig } from "./llm/azure-openai";
+import type { AgentInputItem } from "./llm/azure-openai";
 import { getCompany } from "./lib/company";
 
 const app = Fastify({ logger: { level: process.env.LOG_LEVEL ?? "info" } });
@@ -148,13 +148,16 @@ When tools succeed, summarize what happened in one short sentence.`;
 
 const ChatBodySchema = z.object({
   messages: z.array(z.object({
-    role: z.enum(["user", "assistant", "tool", "system"]),
-    content: z.string().nullable().optional(),
-    tool_calls: z.array(z.any()).optional(),
-    tool_call_id: z.string().optional(),
-    name: z.string().optional(),
+    role: z.enum(["user", "assistant"]),
+    content: z.string(),
   })),
 });
+
+const AGENT_TOOL_SPECS = AGENT_TOOLS.map((t) => ({
+  name: t.function.name,
+  description: t.function.description ?? "",
+  parameters: t.function.parameters as Record<string, unknown>,
+}));
 
 app.post("/chat", async (req, reply) => {
   const parsed = ChatBodySchema.safeParse(req.body);
@@ -170,50 +173,48 @@ app.post("/chat", async (req, reply) => {
     reply.raw.write(`data: ${JSON.stringify(obj)}\n\n`);
   };
 
-  // Build messages with system prompt
-  const messages: ChatCompletionMessageParam[] = [
+  // Build Responses API input: system instructions as first message, then history
+  const input: AgentInputItem[] = [
     { role: "system", content: chatSystemPrompt() },
-    ...(parsed.data.messages as ChatCompletionMessageParam[]),
+    ...parsed.data.messages.map((m) => ({ role: m.role, content: m.content }) as AgentInputItem),
   ];
 
-  // Tool-calling loop
   const MAX_ITERATIONS = 5;
-  for (let i = 0; i < MAX_ITERATIONS; i++) {
-    const completion = await chatComplete({
-      messages,
-      tools: AGENT_TOOLS,
-      maxTokens: 512,
-    });
-    const choice = completion.choices[0];
-    if (!choice) break;
-    const msg = choice.message;
+  try {
+    for (let i = 0; i < MAX_ITERATIONS; i++) {
+      const turn = await runAgentTurn(input, AGENT_TOOL_SPECS);
+      if (turn.text) send({ type: "delta", text: turn.text });
 
-    // Append assistant message
-    messages.push({
-      role: "assistant",
-      content: msg.content ?? "",
-      tool_calls: msg.tool_calls,
-    } as ChatCompletionMessageParam);
-
-    if (msg.content) {
-      send({ type: "delta", text: msg.content });
-    }
-
-    if (msg.tool_calls && msg.tool_calls.length > 0) {
-      for (const tc of msg.tool_calls) {
-        if (tc.type !== "function") continue;
-        send({ type: "tool_call", id: tc.id, name: tc.function.name, args: tc.function.arguments });
-        const result = await executeToolCall(tc.function.name, tc.function.arguments);
-        send({ type: "tool_result", id: tc.id, result });
-        messages.push({
-          role: "tool",
-          tool_call_id: tc.id,
-          content: JSON.stringify(result),
-        } as ChatCompletionMessageParam);
+      // No tool calls? we're done.
+      if (turn.toolCalls.length === 0) {
+        if (turn.text) {
+          input.push({ role: "assistant", content: turn.text });
+        }
+        break;
       }
-      continue; // loop again so model can react to tool results
+
+      // Append the model's tool calls to the conversation history
+      for (const tc of turn.toolCalls) {
+        send({ type: "tool_call", id: tc.call_id, name: tc.name, args: tc.arguments });
+        input.push(tc);
+      }
+
+      // Execute each tool, then append the outputs
+      for (const tc of turn.toolCalls) {
+        const result = await executeToolCall(tc.name, tc.arguments);
+        send({ type: "tool_result", id: tc.call_id, result });
+        input.push({
+          type: "function_call_output",
+          call_id: tc.call_id,
+          output: JSON.stringify(result),
+        });
+      }
     }
-    break;
+  } catch (err) {
+    const e = err as { message?: string; status?: number; error?: { message?: string } };
+    const errorText = e?.error?.message || e?.message || "LLM call failed";
+    app.log.error({ err }, "/chat LLM error");
+    send({ type: "error", message: errorText });
   }
 
   send({ type: "done" });

@@ -1,5 +1,3 @@
-import type { ChatCompletionMessageParam, ChatCompletionTool } from "openai/resources/chat/completions";
-import { chatComplete } from "../llm/azure-openai";
 import { commitSystemAction, generateTicketId } from "../tools/ticket-helpers";
 import type { Candidate, SystemName } from "@hr-agent/shared";
 
@@ -18,12 +16,12 @@ export interface AgentResult {
 export abstract class BaseAgent {
   abstract readonly system: SystemName;
   protected abstract readonly systemPrompt: string;
-  protected abstract readonly tools: ChatCompletionTool[];
+  protected abstract readonly tools: unknown[];
 
   /**
    * Run the agent. Each call:
    *   1. flips tile to in_progress
-   *   2. runs LLM loop with the agent's tools
+   *   2. executes the system-specific work (deterministic in Phase 2)
    *   3. flips tile to done with the artifact summary
    * On error: tile flips to "error".
    */
@@ -64,21 +62,8 @@ export abstract class BaseAgent {
 
   /**
    * Subclass-defined work. Returns the artifact details to commit.
-   * Default implementation runs an LLM loop with the agent's tools and
-   * uses the final assistant message as artifact_summary.
-   * Subclasses can override for more deterministic behavior.
    */
   protected abstract execute(ctx: AgentContext, ticketId: string): Promise<AgentResult>;
-
-  protected async runLLM(messages: ChatCompletionMessageParam[]): Promise<string> {
-    const res = await chatComplete({
-      messages: [{ role: "system", content: this.systemPrompt }, ...messages],
-      tools: this.tools.length > 0 ? this.tools : undefined,
-      maxTokens: 256,
-    });
-    const choice = res.choices[0];
-    return (choice?.message?.content as string) ?? "ok";
-  }
 
   protected async delay(): Promise<void> {
     const ms = parseInt(process.env.DEMO_DELAY_MS ?? "300", 10);

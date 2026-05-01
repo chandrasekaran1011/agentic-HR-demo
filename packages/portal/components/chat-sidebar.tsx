@@ -132,6 +132,18 @@ export function ChatSidebar({ userName, companyName }: ChatSidebarProps) {
                 t.id === `tc-${event.id}` ? { ...t, toolResult: event.result } : t
               )
             );
+          } else if (event.type === "error") {
+            setTurns((prev) =>
+              prev.map((t) =>
+                t.id === assistantId
+                  ? {
+                      ...t,
+                      text: `[LLM error] ${event.message ?? "unknown"}`,
+                      pending: false,
+                    }
+                  : t
+              )
+            );
           } else if (event.type === "done") {
             setTurns((prev) =>
               prev.map((t) => (t.id === assistantId ? { ...t, pending: false } : t))

@@ -1,10 +1,8 @@
 import { AzureOpenAI } from "openai";
-import type { ChatCompletion, ChatCompletionMessageParam, ChatCompletionTool } from "openai/resources/chat/completions";
 
 // CHAT (text) configuration is independent from REALTIME (voice) — Azure AI
-// Foundry deployments often live on different resources for these two model
-// families. We read CHAT-specific env first; fall back to the legacy generic
-// AZURE_OPENAI_* env so older configs keep working.
+// Foundry deployments often live on different resources. Newer models
+// (gpt-5 family) require the Responses API, not Chat Completions.
 
 interface ChatConfig {
   endpoint: string;
@@ -35,66 +33,122 @@ function getClient(cfg: ChatConfig): AzureOpenAI {
   return client;
 }
 
-export interface ChatCompleteOpts {
-  messages: ChatCompletionMessageParam[];
-  tools?: ChatCompletionTool[];
-  toolChoice?: "auto" | "none" | { type: "function"; function: { name: string } };
-  jsonMode?: boolean;
-  maxTokens?: number;
+export interface AgentTool {
+  name: string;
+  description: string;
+  parameters: Record<string, unknown>;
 }
 
-export async function chatComplete(opts: ChatCompleteOpts): Promise<ChatCompletion> {
+export interface AgentInputMessage {
+  type?: undefined;
+  role: "system" | "user" | "assistant";
+  content: string;
+}
+
+export interface AgentFunctionCall {
+  type: "function_call";
+  call_id: string;
+  name: string;
+  arguments: string;
+}
+
+export interface AgentFunctionCallOutput {
+  type: "function_call_output";
+  call_id: string;
+  output: string;
+}
+
+export type AgentInputItem = AgentInputMessage | AgentFunctionCall | AgentFunctionCallOutput;
+
+export interface AgentTurnResult {
+  text: string;
+  toolCalls: AgentFunctionCall[];
+}
+
+/**
+ * Run one turn of the agent via Azure OpenAI Responses API.
+ * Returns assistant text + any function calls the model wants to make.
+ * Caller handles function execution and feeds results back as the next turn.
+ */
+export async function runAgentTurn(
+  input: AgentInputItem[],
+  tools: AgentTool[]
+): Promise<AgentTurnResult> {
   const cfg = readChatConfig();
-  if (!cfg) return mockChatComplete(opts);
+  if (!cfg) return mockAgentTurn(input);
+
   const c = getClient(cfg);
-  return c.chat.completions.create({
+  const responseTools = tools.map((t) => ({
+    type: "function" as const,
+    name: t.name,
+    description: t.description,
+    parameters: t.parameters,
+  }));
+
+  // Bridge SDK version skew: cast to a structural type for responses.create.
+  const responsesApi = (c as unknown as {
+    responses: { create: (args: unknown) => Promise<unknown> };
+  }).responses;
+
+  const res = await responsesApi.create({
     model: cfg.deployment,
-    messages: opts.messages,
-    tools: opts.tools,
-    tool_choice: opts.toolChoice,
-    response_format: opts.jsonMode ? { type: "json_object" } : undefined,
-    max_tokens: opts.maxTokens ?? 1024,
-  }) as unknown as ChatCompletion;
+    input,
+    tools: responseTools.length > 0 ? responseTools : undefined,
+  });
+
+  const r = res as {
+    output?: Array<{
+      type: string;
+      content?: Array<{ type: string; text?: string }>;
+      call_id?: string;
+      name?: string;
+      arguments?: string;
+    }>;
+    output_text?: string;
+  };
+
+  // Prefer the rolled-up output_text; fall back to walking output[] items.
+  let text = "";
+  const toolCalls: AgentFunctionCall[] = [];
+
+  if (typeof r.output_text === "string" && r.output_text.length > 0) {
+    text = r.output_text;
+  } else {
+    for (const item of r.output ?? []) {
+      if (item.type === "message" && Array.isArray(item.content)) {
+        for (const block of item.content) {
+          if (block.type === "output_text" && typeof block.text === "string") {
+            text += block.text;
+          }
+        }
+      }
+    }
+  }
+
+  for (const item of r.output ?? []) {
+    if (item.type === "function_call" && item.call_id && item.name) {
+      toolCalls.push({
+        type: "function_call",
+        call_id: item.call_id,
+        name: item.name,
+        arguments: item.arguments ?? "{}",
+      });
+    }
+  }
+
+  return { text, toolCalls };
 }
 
 // Deterministic mock — used when chat keys aren't configured.
-function mockChatComplete(opts: ChatCompleteOpts): ChatCompletion {
-  const last = opts.messages[opts.messages.length - 1];
-  const lastContent =
-    typeof last?.content === "string" ? last.content : JSON.stringify(last?.content ?? "");
-
-  let finalText = "ok";
-  const m = /MOCK_FINAL=([^\n]+)/.exec(
-    JSON.stringify(opts.messages.map((msg) => msg.content))
-  );
-  if (m && m[1]) finalText = m[1].trim();
-
-  if (opts.jsonMode) {
-    finalText = "{}";
-  }
-
+function mockAgentTurn(input: AgentInputItem[]): AgentTurnResult {
+  const lastUser = [...input]
+    .reverse()
+    .find((i): i is AgentInputMessage => !i.type && (i as AgentInputMessage).role === "user");
+  const userText = lastUser?.content ?? "";
   return {
-    id: "mock-cmpl-" + Date.now(),
-    object: "chat.completion",
-    created: Math.floor(Date.now() / 1000),
-    model: "mock",
-    choices: [
-      {
-        index: 0,
-        finish_reason: "stop",
-        logprobs: null,
-        message: {
-          role: "assistant",
-          content: finalText,
-          refusal: null,
-          tool_calls: undefined,
-        } as ChatCompletion["choices"][0]["message"],
-      },
-    ],
-    usage: { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 },
-    _mock: true,
-    _lastUserContent: lastContent,
-  } as unknown as ChatCompletion;
+    text: userText ? `[mock] echoing: ${userText}` : "ok",
+    toolCalls: [],
+  };
 }
 
 export function isMockMode(): boolean {
