@@ -113,8 +113,9 @@ export function CandidatesTable({ initialData }: { initialData: Candidate[] }) {
                   variant="secondary"
                   disabled={busy === c.id}
                   onClick={(e) => onboard(c, e)}
+                  title="Manual fallback — prefer the chat or voice agent"
                 >
-                  {busy === c.id ? "Starting…" : "Onboard"}
+                  {busy === c.id ? "Starting…" : "Onboard manually"}
                 </Button>
               )}
             </TableCell>

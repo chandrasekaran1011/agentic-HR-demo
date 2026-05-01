@@ -29,8 +29,8 @@ export async function chatComplete(opts: ChatCompleteOpts): Promise<ChatCompleti
   if (!hasAzureConfig()) {
     return mockChatComplete(opts);
   }
-  const deployment = process.env.AZURE_OPENAI_GPT4O_DEPLOYMENT;
-  if (!deployment) throw new Error("AZURE_OPENAI_GPT4O_DEPLOYMENT not set");
+  const deployment = process.env.AZURE_OPENAI_CHAT_DEPLOYMENT;
+  if (!deployment) throw new Error("AZURE_OPENAI_CHAT_DEPLOYMENT not set");
   const c = getClient();
   return c.chat.completions.create({
     model: deployment,

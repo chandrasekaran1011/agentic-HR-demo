@@ -4,7 +4,7 @@ Multi-agent HR onboarding demo for a 3000-person townhall.
 
 ## Status
 
-**Phase 2 of 4 complete.** Orchestrator service with multi-agent supervisor + 12 sub-agents, MJML email templates via Azure ACS, SSE-driven live UI (tile flips, reasoning stream, stopwatch, savings counter, email inbox toast). HTTP-trigger an onboarding cascade and watch tiles flip green in the browser. **No voice yet — Phase 3.**
+**Phase 3 of 4 complete.** Chat sidebar (text) + voice agent (Azure OpenAI Realtime) both wired, sharing the same three tools and the same conversation thread. Mock-LLM fallback when keys aren't set. **Phase 4 = polish + master-data admin UI.**
 
 See [docs/superpowers/specs/2026-05-01-hr-onboarding-agent-demo-design.md](docs/superpowers/specs/2026-05-01-hr-onboarding-agent-demo-design.md) for the full design.
 
@@ -22,27 +22,81 @@ npm run reset                       # FLUSHDB + seed master data + 4 candidates
 # In separate terminals:
 npm run orchestrator                # tsx watch, port 3001
 npm run portal                      # next dev, port 3000
-
-# Or all-in-one:
-npm run dev
 ```
 
-Visit `http://localhost:3000`. Login `hr` / `acme2026`. Click **Onboard** on a pending candidate (e.g. Karan Shah) and watch the cascade.
+Visit `http://localhost:3000`. Login `hr` / `acme2026`.
+
+### Try the chat agent
+Type into the sidebar:
+- *"What's the status of Priya Sharma?"* → agent calls `lookup_status`
+- *"Onboard Karan Shah, Senior Frontend Engineer, AI Platform team, joining May 12"* → agent calls `start_onboarding`, the cascade fires, you watch tiles flip
+- *"Actually, change Karan's team to AI Infrastructure"* → agent calls `amend_onboarding`, affected tiles re-run
+
+### Try voice
+Click the mic button. Browser connects directly to Azure OpenAI Realtime via WebRTC. Speak the same kinds of requests; transcripts join the chat thread.
+
+### Manual fallback
+The candidates table has an **"Onboard manually"** button on pending rows for offline/recovery scenarios.
 
 ## Tests
 
 ```bash
 npm test                            # vitest unit tests
-npm run test:e2e                    # playwright (4 tests, ~10s)
+npm run test:e2e                    # 5 tests, ~11s
 ```
 
-## Mock-mode fallback
+## Mock mode (offline dev)
 
-When `AZURE_OPENAI_API_KEY` is unset, LLM calls return deterministic responses. When `AZURE_COMM_CONNECTION_STRING` is unset, emails are logged to stdout instead of sent. When `TAVILY_API_KEY` is unset, web search returns empty (welcome agent falls back to non-relocation template). This means **the full cascade runs offline without any cloud accounts.**
+Without any cloud credentials:
+- **Chat:** returns canned "ok" responses (no real reasoning)
+- **Voice:** shows a friendly "set keys to enable" message
+- **Email:** logged to stdout, `email.sent` events still fire (toast appears)
+- **Tavily:** empty results (welcome agent skips accommodation suggestions)
+
+The cascade and UI work without any Azure account.
+
+## Environment variables
+
+See [`.env.example`](.env.example) for the full list. Key ones:
+
+| Variable | Required for | Notes |
+|---|---|---|
+| `COMPANY_NAME`, `COMPANY_BRAND_COLOR`, … | Branding | Threaded into UI + email templates |
+| `AZURE_OPENAI_ENDPOINT` + `_API_KEY` | Real LLM | Both chat and voice use this |
+| `AZURE_OPENAI_CHAT_DEPLOYMENT` | Text chat | Your deployment name (gpt-4o, gpt-5, etc.) |
+| `AZURE_OPENAI_REALTIME_DEPLOYMENT` | Voice | Your realtime deployment (e.g. gpt-4o-realtime-preview) |
+| `AZURE_COMM_CONNECTION_STRING` + `_SENDER_ADDRESS` | Real email | Mock fallback otherwise |
+| `TAVILY_API_KEY` | Relocation hotel suggestions | Welcome email enrichment |
+
+After editing `.env`, restart `npm run portal` and `npm run orchestrator` — Next.js does not hot-reload env vars.
 
 ## Auth
 
-**Demo only. Do not deploy.** Plaintext passwords in env. No rate limiting, no CSRF.
+**Demo only — do not deploy.** Plaintext passwords in env. No rate limiting, no CSRF.
+
+## Architecture
+
+```
+Browser ──HTTP──▶ Portal :3000 ──HTTP──▶ Orchestrator :3001
+   │ ▲                  │                       │
+   │ │                  ▼                       ▼
+   │ └─ SSE /api/events ◀── Redis pub/sub agent:events
+   │
+   └─ WebRTC ────────────▶ Azure OpenAI Realtime API (direct)
+```
+
+Portal mints ephemeral Realtime sessions via orchestrator's `/voice/session`. Tool calls from voice are POSTed back to portal's `/api/voice/tool`, which proxies to orchestrator. Same three tools (`lookup_status`, `start_onboarding`, `amend_onboarding`) for chat and voice.
+
+## Wow moments status
+
+| ID | What | Status |
+|---|---|---|
+| W1 | Constellation tile light-up | ✅ Phase 2 |
+| W2 | Reasoning stream | ✅ Phase 2 |
+| W3 | Real email toast on inbox preview | ✅ Phase 2 (mock; real ACS when configured) |
+| W4 | Stopwatch + savings counter | ✅ Phase 2 |
+| W5 | Live correction via voice or chat | ✅ Phase 3 |
+| W9 | Voice round-trip closing | ✅ Phase 3 (system prompt encourages it) |
 
 ## Layout
 
@@ -51,46 +105,25 @@ master-data/                  versioned config: roles, software matrix, teams, �
 seed-data/candidates.json     4 demo candidates
 packages/shared/              types + Zod schemas
 packages/portal/              Next.js 15 App Router app (UI + thin API + SSE)
+  app/api/chat                SSE proxy to orchestrator /chat
+  app/api/voice/{token,tool}  voice session mint + tool execution proxy
+  components/chat-sidebar.tsx persistent chat thread
+  components/voice-agent.tsx  Realtime API + WebRTC hook
 packages/orchestrator/        Fastify + supervisor + 12 sub-agents + email
+  src/agent-tools             3 tools shared by chat + voice
+  src/supervisor              compute desired state, diff, run-cascade
+  src/agents                  12 sub-agents
+  src/email                   MJML render + ACS client
 scripts/seed.ts               load master + seed into Redis
 scripts/reset-demo.sh         flush + reseed
 deploy/docker-compose*.yml    redis + portal + orchestrator
-e2e/                          playwright tests (smoke + cascade)
+e2e/                          playwright tests
 ```
-
-## Architecture
-
-```
-Browser ──HTTP──▶ Portal :3000 ──HTTP──▶ Orchestrator :3001
-   ▲                  │                       │
-   │                  ▼                       ▼
-   └─ SSE /api/events ◀── Redis pub/sub agent:events
-```
-
-- Supervisor reads master data, computes desired state, dispatches sub-agents in 3 waves (HRMS solo → 9 parallel → manager+welcome).
-- Each sub-agent commits a tile/audit/event triplet to Redis through `commitSystemAction`.
-- Portal SSE forwards events to the browser; React components animate tile flips via Framer Motion.
-
-## Wow moments wired in Phase 2
-
-| ID | What | Status |
-|---|---|---|
-| W1 | Constellation tile light-up | ✅ |
-| W2 | Reasoning stream | ✅ |
-| W3 | Real email toast on inbox preview | ✅ (mock send works; real ACS when configured) |
-| W4 | Stopwatch + savings counter | ✅ |
-
-## What Phase 3 will add
-
-- Azure OpenAI Realtime API in browser (WebRTC)
-- Voice tools: `lookup_status`, `start_onboarding`, `amend_onboarding`
-- Narration cue injection from server → browser → Realtime session
-- W5 mic-drop amend flow end-to-end (the "Actually, AI Infrastructure" moment)
-- W9 voice round-trip closing
 
 ## What Phase 4 will add
 
 - Master data admin UI (Role × Software / Training matrix screens)
-- Big-number reveals on `/admin`
-- Polish on animations, spacing, typography
+- Big-number reveal animation on `/admin`
+- Polish on animations, spacing, typography (frontend-design skill pass)
 - `npm run rehearse` mock-LLM dry-run script
+- Final demo prep checklist + day-of script

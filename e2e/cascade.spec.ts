@@ -19,7 +19,7 @@ test.describe("Phase 2 cascade", () => {
     // Click Onboard for Karan
     const karanRow = page.getByRole("row", { name: /Karan Shah/ });
     await expect(karanRow).toBeVisible();
-    await karanRow.getByRole("button", { name: "Onboard" }).click();
+    await karanRow.getByRole("button", { name: /Onboard manually/ }).click();
 
     // Should land on Karan's detail page
     await expect(page).toHaveURL(/\/candidates\/karan-shah/);
