@@ -28,12 +28,40 @@ export function useVoiceAgent(opts: UseVoiceAgentOptions) {
   const onTurnRef = useRef(opts.onTurn);
   onTurnRef.current = opts.onTurn;
 
+  // Auto-end after this much silence while listening for the user. Timer is
+  // paused while Sara is speaking and reset whenever the user starts talking.
+  const IDLE_TIMEOUT_MS = 10_000;
+  const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function clearIdleTimer() {
+    if (idleTimerRef.current) {
+      clearTimeout(idleTimerRef.current);
+      idleTimerRef.current = null;
+    }
+  }
+
+  function startIdleTimer() {
+    clearIdleTimer();
+    idleTimerRef.current = setTimeout(() => {
+      onTurnRef.current({
+        id: `vidle-${Date.now()}`,
+        role: "assistant",
+        text: `Voice ended after ${IDLE_TIMEOUT_MS / 1000}s of silence. Click the mic to start again.`,
+        source: "voice",
+      });
+      stop();
+    }, IDLE_TIMEOUT_MS);
+  }
+
   useEffect(() => {
     if (!audioRef.current && typeof window !== "undefined") {
       const a = new Audio();
       a.autoplay = true;
       audioRef.current = a;
     }
+    return () => {
+      clearIdleTimer();
+    };
   }, []);
 
   async function start() {
@@ -92,8 +120,10 @@ export function useVoiceAgent(opts: UseVoiceAgentOptions) {
         } catch (e) {
           console.warn("[voice] failed to send greeting", e);
         }
+        // Idle timer starts on response.done (after Sara's greeting).
       };
       dc.onclose = () => {
+        clearIdleTimer();
         setConnected(false);
         setState("idle");
       };
@@ -137,6 +167,7 @@ export function useVoiceAgent(opts: UseVoiceAgentOptions) {
   }
 
   function stop() {
+    clearIdleTimer();
     dcRef.current?.close();
     pcRef.current?.close();
     pcRef.current = null;
@@ -154,10 +185,22 @@ export function useVoiceAgent(opts: UseVoiceAgentOptions) {
     }
     const type = event.type;
 
-    // Speech state
-    if (type === "input_audio_buffer.speech_started") setState("listening");
-    if (type === "response.audio.delta") setState("speaking");
-    if (type === "response.done") setState("listening");
+    // Speech state + silence-timeout management
+    if (type === "input_audio_buffer.speech_started") {
+      setState("listening");
+      // User started talking — cancel the silence timer
+      clearIdleTimer();
+    }
+    if (type === "response.audio.delta") {
+      // Sara is speaking — pause the silence timer
+      setState("speaking");
+      clearIdleTimer();
+    }
+    if (type === "response.done") {
+      // Sara finished — start the 10s silence countdown
+      setState("listening");
+      startIdleTimer();
+    }
 
     // User transcript
     if (type === "conversation.item.input_audio_transcription.completed") {
