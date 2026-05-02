@@ -14,12 +14,20 @@ export default async function AdminPage() {
       <div className="p-8 space-y-8">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-semibold">Admin Dashboard</h1>
-          <Link
-            href="/admin/master-data"
-            className="text-sm text-slate-400 hover:text-slate-200 underline-offset-4 hover:underline"
-          >
-            Master data →
-          </Link>
+          <div className="flex items-center gap-4 text-sm">
+            <Link
+              href="/admin/settings"
+              className="text-slate-400 hover:text-slate-200 underline-offset-4 hover:underline"
+            >
+              Settings →
+            </Link>
+            <Link
+              href="/admin/master-data"
+              className="text-slate-400 hover:text-slate-200 underline-offset-4 hover:underline"
+            >
+              Master data →
+            </Link>
+          </div>
         </div>
 
         <div className="grid grid-cols-4 gap-4">

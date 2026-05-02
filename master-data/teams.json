@@ -8,7 +8,8 @@
     "manager_email": "sneha.roy@acme.com",
     "buddy_pool": [
       { "name": "Rohan Desai", "email": "rohan.desai@acme.com", "role_family": "engineering", "tenure_years": 3 },
-      { "name": "Ankit Verma", "email": "ankit.verma@acme.com", "role_family": "engineering", "tenure_years": 2 }
+      { "name": "Ankit Verma", "email": "ankit.verma@acme.com", "role_family": "engineering", "tenure_years": 2 },
+      { "name": "Divya Iyer", "email": "divya.iyer@acme.com", "role_family": "engineering", "tenure_years": 4 }
     ],
     "parking_eligibility": "all"
   },
@@ -20,7 +21,8 @@
     "manager": "Karthik Rao",
     "manager_email": "karthik.rao@acme.com",
     "buddy_pool": [
-      { "name": "Meera Krishnan", "email": "meera.krishnan@acme.com", "role_family": "infrastructure", "tenure_years": 4 }
+      { "name": "Meera Krishnan", "email": "meera.krishnan@acme.com", "role_family": "infrastructure", "tenure_years": 4 },
+      { "name": "Naveen Kumar", "email": "naveen.kumar@acme.com", "role_family": "infrastructure", "tenure_years": 3 }
     ],
     "parking_eligibility": "all"
   },
@@ -32,7 +34,8 @@
     "manager": "Anjali Mehta",
     "manager_email": "anjali.mehta@acme.com",
     "buddy_pool": [
-      { "name": "Vikram Iyer", "email": "vikram.iyer@acme.com", "role_family": "data", "tenure_years": 2 }
+      { "name": "Vikram Iyer", "email": "vikram.iyer@acme.com", "role_family": "data", "tenure_years": 2 },
+      { "name": "Sandeep Agarwal", "email": "sandeep.agarwal@acme.com", "role_family": "data", "tenure_years": 5 }
     ],
     "parking_eligibility": "senior_only"
   },
@@ -44,7 +47,32 @@
     "manager": "Priya Nambiar",
     "manager_email": "priya.nambiar@acme.com",
     "buddy_pool": [
-      { "name": "Aanya Patel", "email": "aanya.patel@acme.com", "role_family": "design", "tenure_years": 1 }
+      { "name": "Aanya Patel", "email": "aanya.patel@acme.com", "role_family": "design", "tenure_years": 1 },
+      { "name": "Ishaan Gupta", "email": "ishaan.gupta@acme.com", "role_family": "design", "tenure_years": 3 }
+    ],
+    "parking_eligibility": "all"
+  },
+  {
+    "id": "growth",
+    "name": "Growth",
+    "floor": 2,
+    "wing": "west",
+    "manager": "Rajeev Menon",
+    "manager_email": "rajeev.menon@acme.com",
+    "buddy_pool": [
+      { "name": "Tanvi Joshi", "email": "tanvi.joshi@acme.com", "role_family": "product", "tenure_years": 2 }
+    ],
+    "parking_eligibility": "all"
+  },
+  {
+    "id": "security",
+    "name": "Security",
+    "floor": 5,
+    "wing": "south",
+    "manager": "Vikas Singh",
+    "manager_email": "vikas.singh@acme.com",
+    "buddy_pool": [
+      { "name": "Lakshmi Narayan", "email": "lakshmi.narayan@acme.com", "role_family": "infrastructure", "tenure_years": 6 }
     ],
     "parking_eligibility": "all"
   }

@@ -1,5 +1,6 @@
 import { EmailClient } from "@azure/communication-email";
 import { publishAgentEvent } from "../lib/events";
+import { getEmailOverride } from "../lib/demo-settings";
 
 export interface SendEmailOpts {
   to: string;
@@ -44,14 +45,33 @@ export async function sendEmail(opts: SendEmailOpts): Promise<SendEmailResult> {
   const sender = normalizeSender(process.env.AZURE_COMM_SENDER_ADDRESS);
   const conn = process.env.AZURE_COMM_CONNECTION_STRING;
 
+  // Demo safety: redirect ALL outbound mail to a single address if set.
+  // Original recipient is preserved in subject + email-sent event so the UI
+  // continues to show "where it would have gone" in the inbox toast.
+  const override = await getEmailOverride();
+  const intendedTo = opts.to;
+  const actualTo = override || opts.to;
+  const subject = override
+    ? `[demo→${intendedTo}] ${opts.subject}`
+    : opts.subject;
+
   if (!sender || !conn) {
-    console.log(`[email] mock send → ${opts.to} subject="${opts.subject}"`);
+    console.log(
+      `[email] mock send → ${actualTo}${
+        override ? ` (overridden from ${intendedTo})` : ""
+      } subject="${subject}"`
+    );
     const mockId = `mock-${Date.now()}`;
     if (opts.candidateId) {
       await publishAgentEvent({
         type: "email.sent",
         candidate_id: opts.candidateId,
-        payload: { to: opts.to, subject: opts.subject, message_id: mockId },
+        payload: {
+          to: intendedTo,
+          actual_to: actualTo,
+          subject,
+          message_id: mockId,
+        },
         timestamp: new Date().toISOString(),
         run_id: opts.runId,
       });
@@ -67,11 +87,11 @@ export async function sendEmail(opts: SendEmailOpts): Promise<SendEmailResult> {
     const poller = await c.beginSend({
       senderAddress: sender,
       content: {
-        subject: opts.subject,
+        subject,
         html: opts.html,
         plainText: opts.text,
       },
-      recipients: { to: [{ address: opts.to }] },
+      recipients: { to: [{ address: actualTo }] },
     });
     const result = await poller.pollUntilDone();
     const messageId = result.id ?? `acs-${Date.now()}`;
@@ -80,7 +100,12 @@ export async function sendEmail(opts: SendEmailOpts): Promise<SendEmailResult> {
       await publishAgentEvent({
         type: "email.sent",
         candidate_id: opts.candidateId,
-        payload: { to: opts.to, subject: opts.subject, message_id: messageId },
+        payload: {
+          to: intendedTo,
+          actual_to: actualTo,
+          subject,
+          message_id: messageId,
+        },
         timestamp: new Date().toISOString(),
         run_id: opts.runId,
       });
@@ -89,13 +114,20 @@ export async function sendEmail(opts: SendEmailOpts): Promise<SendEmailResult> {
     return { messageId, delivered: result.status === "Succeeded" };
   } catch (err) {
     const e = err as { message?: string };
-    console.warn(`[email] ACS send failed → ${opts.to}: ${e.message ?? err}`);
+    console.warn(`[email] ACS send failed → ${actualTo}: ${e.message ?? err}`);
     const failedId = `failed-${Date.now()}`;
     if (opts.candidateId) {
       await publishAgentEvent({
         type: "email.sent",
         candidate_id: opts.candidateId,
-        payload: { to: opts.to, subject: opts.subject, message_id: failedId, delivered: false, error: e.message ?? String(err) },
+        payload: {
+          to: intendedTo,
+          actual_to: actualTo,
+          subject,
+          message_id: failedId,
+          delivered: false,
+          error: e.message ?? String(err),
+        },
         timestamp: new Date().toISOString(),
         run_id: opts.runId,
       });

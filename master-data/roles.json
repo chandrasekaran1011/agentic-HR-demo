@@ -1,9 +1,19 @@
 [
   { "id": "sr_be", "name": "Senior Backend Engineer", "family": "engineering", "level": "senior" },
   { "id": "jr_be", "name": "Junior Backend Engineer", "family": "engineering", "level": "junior" },
+  { "id": "staff_be", "name": "Staff Backend Engineer", "family": "engineering", "level": "staff" },
   { "id": "sr_fe", "name": "Senior Frontend Engineer", "family": "engineering", "level": "senior" },
+  { "id": "jr_fe", "name": "Junior Frontend Engineer", "family": "engineering", "level": "junior" },
+  { "id": "tech_lead", "name": "Tech Lead", "family": "engineering", "level": "staff" },
+  { "id": "eng_mgr", "name": "Engineering Manager", "family": "engineering", "level": "principal" },
   { "id": "sr_ds", "name": "Senior Data Scientist", "family": "data", "level": "senior" },
+  { "id": "ml_eng", "name": "ML Engineer", "family": "data", "level": "senior" },
+  { "id": "sr_de", "name": "Senior Data Engineer", "family": "data", "level": "senior" },
   { "id": "pm_data", "name": "PM, Data", "family": "product", "level": "senior" },
+  { "id": "pm_growth", "name": "PM, Growth", "family": "product", "level": "senior" },
   { "id": "designer", "name": "Senior Designer", "family": "design", "level": "senior" },
-  { "id": "devops", "name": "DevOps Engineer", "family": "infrastructure", "level": "senior" }
+  { "id": "ux_research", "name": "UX Researcher", "family": "design", "level": "senior" },
+  { "id": "devops", "name": "DevOps Engineer", "family": "infrastructure", "level": "senior" },
+  { "id": "sre", "name": "Site Reliability Engineer", "family": "infrastructure", "level": "senior" },
+  { "id": "security_eng", "name": "Security Engineer", "family": "infrastructure", "level": "senior" }
 ]

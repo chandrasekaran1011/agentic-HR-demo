@@ -1,9 +1,19 @@
 [
-  { "role_id": "sr_be", "software_ids": ["m365", "slack", "copilot", "datadog", "jira", "aws", "terraform", "k8s_lens"] },
-  { "role_id": "jr_be", "software_ids": ["m365", "slack", "copilot", "jira", "aws"] },
-  { "role_id": "sr_fe", "software_ids": ["m365", "slack", "copilot", "datadog", "jira", "figma"] },
-  { "role_id": "sr_ds", "software_ids": ["m365", "slack", "copilot", "datadog", "tableau"] },
-  { "role_id": "pm_data", "software_ids": ["m365", "slack", "jira", "tableau"] },
-  { "role_id": "designer", "software_ids": ["m365", "slack", "figma"] },
-  { "role_id": "devops", "software_ids": ["m365", "slack", "copilot", "datadog", "aws", "terraform", "k8s_lens"] }
+  { "role_id": "sr_be", "software_ids": ["m365", "slack", "notion", "copilot", "vscode", "datadog", "sentry", "jira", "aws", "terraform", "k8s_lens", "1password", "zoom", "okta"] },
+  { "role_id": "jr_be", "software_ids": ["m365", "slack", "copilot", "vscode", "jira", "aws", "1password", "zoom", "okta"] },
+  { "role_id": "staff_be", "software_ids": ["m365", "slack", "notion", "copilot", "vscode", "datadog", "sentry", "jira", "aws", "terraform", "k8s_lens", "snyk", "1password", "zoom", "okta"] },
+  { "role_id": "sr_fe", "software_ids": ["m365", "slack", "notion", "copilot", "vscode", "datadog", "sentry", "jira", "figma", "1password", "zoom", "okta"] },
+  { "role_id": "jr_fe", "software_ids": ["m365", "slack", "copilot", "vscode", "jira", "figma", "1password", "zoom", "okta"] },
+  { "role_id": "tech_lead", "software_ids": ["m365", "slack", "notion", "copilot", "vscode", "datadog", "sentry", "linear", "jira", "aws", "terraform", "k8s_lens", "snyk", "1password", "zoom", "okta"] },
+  { "role_id": "eng_mgr", "software_ids": ["m365", "slack", "notion", "linear", "jira", "datadog", "1password", "zoom", "okta", "looker"] },
+  { "role_id": "sr_ds", "software_ids": ["m365", "slack", "notion", "copilot", "vscode", "datadog", "tableau", "looker", "aws", "1password", "zoom", "okta"] },
+  { "role_id": "ml_eng", "software_ids": ["m365", "slack", "notion", "copilot", "vscode", "datadog", "aws", "terraform", "k8s_lens", "1password", "zoom", "okta"] },
+  { "role_id": "sr_de", "software_ids": ["m365", "slack", "notion", "copilot", "vscode", "datadog", "looker", "aws", "terraform", "1password", "zoom", "okta"] },
+  { "role_id": "pm_data", "software_ids": ["m365", "slack", "notion", "linear", "jira", "tableau", "looker", "1password", "zoom", "okta"] },
+  { "role_id": "pm_growth", "software_ids": ["m365", "slack", "notion", "linear", "jira", "tableau", "1password", "zoom", "okta"] },
+  { "role_id": "designer", "software_ids": ["m365", "slack", "notion", "figma", "miro", "1password", "zoom", "okta"] },
+  { "role_id": "ux_research", "software_ids": ["m365", "slack", "notion", "figma", "miro", "1password", "zoom", "okta"] },
+  { "role_id": "devops", "software_ids": ["m365", "slack", "notion", "copilot", "vscode", "datadog", "sentry", "aws", "terraform", "k8s_lens", "snyk", "1password", "zoom", "okta"] },
+  { "role_id": "sre", "software_ids": ["m365", "slack", "notion", "copilot", "vscode", "datadog", "sentry", "aws", "terraform", "k8s_lens", "1password", "zoom", "okta"] },
+  { "role_id": "security_eng", "software_ids": ["m365", "slack", "notion", "vscode", "datadog", "snyk", "aws", "terraform", "1password", "zoom", "okta"] }
 ]

@@ -1,7 +1,27 @@
 [
-  { "role_family": "engineering", "required": ["Onboarding 101", "Security 101"], "recommended": ["Backend Bootcamp", "Code Review Best Practices"] },
-  { "role_family": "data", "required": ["Onboarding 101", "Security 101", "Data Privacy"], "recommended": ["Tableau Fundamentals"] },
-  { "role_family": "infrastructure", "required": ["Onboarding 101", "Security 101", "Production Readiness"], "recommended": ["K8s Bootcamp"] },
-  { "role_family": "product", "required": ["Onboarding 101", "Security 101"], "recommended": ["Product Sense"] },
-  { "role_family": "design", "required": ["Onboarding 101", "Security 101"], "recommended": ["Design System 101"] }
+  {
+    "role_family": "engineering",
+    "required": ["Onboarding 101", "Security 101", "Code Review Best Practices"],
+    "recommended": ["Backend Bootcamp", "Frontend Bootcamp", "System Design Foundations"]
+  },
+  {
+    "role_family": "data",
+    "required": ["Onboarding 101", "Security 101", "Data Privacy", "PII Handling"],
+    "recommended": ["Tableau Fundamentals", "Looker for Analysts", "ML Ops"]
+  },
+  {
+    "role_family": "infrastructure",
+    "required": ["Onboarding 101", "Security 101", "Production Readiness", "Incident Response"],
+    "recommended": ["K8s Bootcamp", "Terraform Workflow", "AWS Solutions Architect"]
+  },
+  {
+    "role_family": "product",
+    "required": ["Onboarding 101", "Security 101", "Product Lifecycle"],
+    "recommended": ["Product Sense", "OKR Workshop", "Customer Interviews 101"]
+  },
+  {
+    "role_family": "design",
+    "required": ["Onboarding 101", "Security 101"],
+    "recommended": ["Design System 101", "Accessibility Fundamentals", "Figma Power User"]
+  }
 ]

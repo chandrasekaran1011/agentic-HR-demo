@@ -1,6 +1,8 @@
 [
   { "role_family": "engineering", "level": "senior", "model": "MacBook Pro 16", "ram": "32GB", "cpu": "M3 Pro", "accessories": ["external monitor", "keyboard", "mouse"] },
   { "role_family": "engineering", "level": "junior", "model": "MacBook Pro 14", "ram": "16GB", "cpu": "M3", "accessories": ["external monitor"] },
+  { "role_family": "engineering", "level": "staff", "model": "MacBook Pro 16", "ram": "64GB", "cpu": "M3 Max", "accessories": ["dual external monitors", "keyboard", "mouse"] },
+  { "role_family": "engineering", "level": "principal", "model": "MacBook Pro 16", "ram": "64GB", "cpu": "M3 Max", "accessories": ["dual external monitors", "keyboard", "mouse"] },
   { "role_family": "data", "level": "senior", "model": "MacBook Pro 16", "ram": "32GB", "cpu": "M3 Pro", "accessories": ["external monitor"] },
   { "role_family": "infrastructure", "level": "senior", "model": "MacBook Pro 16", "ram": "32GB", "cpu": "M3 Max", "accessories": ["external monitor"] },
   { "role_family": "product", "level": "senior", "model": "MacBook Air 15", "ram": "16GB", "cpu": "M3", "accessories": ["external monitor"] },
