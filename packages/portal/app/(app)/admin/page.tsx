@@ -17,13 +17,13 @@ export default async function AdminPage() {
           <div className="flex items-center gap-4 text-sm">
             <Link
               href="/admin/settings"
-              className="text-slate-400 hover:text-slate-200 underline-offset-4 hover:underline"
+              className="text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
             >
               Settings →
             </Link>
             <Link
               href="/admin/master-data"
-              className="text-slate-400 hover:text-slate-200 underline-offset-4 hover:underline"
+              className="text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
             >
               Master data →
             </Link>
@@ -53,14 +53,14 @@ export default async function AdminPage() {
           </Card>
         </div>
 
-        <div className="rounded-lg border border-slate-800 bg-slate-900 p-6">
-          <h2 className="text-sm text-slate-400 mb-4">
+        <div className="rounded-lg border border-border bg-card p-6">
+          <h2 className="text-sm text-muted-foreground mb-4">
             Time saved · {m.complete} cascades × baseline {formatHM(6 * 3600 + 12 * 60)} per manual onboarding
           </h2>
-          <div className="h-3 w-full rounded-full bg-slate-800 overflow-hidden">
+          <div className="h-3 w-full rounded-full bg-muted overflow-hidden">
             <SavingsBar percent={Math.min(100, (m.total_time_saved_seconds / Math.max(1, m.complete * (6 * 3600 + 12 * 60))) * 100)} />
           </div>
-          <p className="text-xs text-slate-500 mt-2">
+          <p className="text-xs text-muted-foreground mt-2">
             Manual baseline: {formatHM(6 * 3600 + 12 * 60)} per onboarding · Agent runtime per cascade: {formatDuration(m.avg_run_seconds)}
           </p>
         </div>
@@ -68,21 +68,21 @@ export default async function AdminPage() {
         <div>
           <h2 className="text-lg font-semibold mb-4">Recent activity</h2>
           {activity.length === 0 ? (
-            <p className="text-sm text-slate-500 italic">Nothing yet.</p>
+            <p className="text-sm text-muted-foreground italic">Nothing yet.</p>
           ) : (
             <ul className="space-y-2">
               {activity.map((a, i) => (
-                <li key={i} className="text-sm flex gap-3 border-b border-slate-800/50 pb-2">
-                  <span className="text-slate-500 font-mono">
+                <li key={i} className="text-sm flex gap-3 border-b border-border/50 pb-2">
+                  <span className="text-muted-foreground font-mono">
                     {new Date(a.ts).toLocaleTimeString()}
                   </span>
                   <Link
                     href={`/candidates/${a.candidate_id}`}
-                    className="text-slate-300 hover:text-slate-100 min-w-[140px]"
+                    className="text-foreground hover:text-foreground min-w-[140px]"
                   >
                     {a.candidate_id}
                   </Link>
-                  <span className="text-slate-200">{a.msg}</span>
+                  <span className="text-foreground">{a.msg}</span>
                 </li>
               ))}
             </ul>
@@ -95,8 +95,8 @@ export default async function AdminPage() {
 
 function Card({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-slate-800 bg-slate-900 p-6">
-      <p className="text-sm text-slate-400">{label}</p>
+    <div className="rounded-lg border border-border bg-card p-6">
+      <p className="text-sm text-muted-foreground">{label}</p>
       {children}
     </div>
   );

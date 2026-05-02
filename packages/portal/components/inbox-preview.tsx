@@ -42,13 +42,13 @@ export function InboxPreview({ enabled }: { enabled: boolean }) {
             initial={{ opacity: 0, x: 20, scale: 0.95 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 20 }}
-            className="bg-slate-900/95 border border-slate-700 rounded-lg p-3 w-80 shadow-2xl backdrop-blur"
+            className="bg-card/95 border border-border rounded-lg p-3 w-80 shadow-2xl backdrop-blur"
           >
             <div className="flex items-start gap-3">
-              <Mail className="size-5 text-emerald-400 mt-0.5 shrink-0" />
+              <Mail className="size-5 text-emerald-500 dark:text-emerald-400 mt-0.5 shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-slate-400">New email · {item.to}</p>
-                <p className="text-sm text-slate-100 font-medium truncate" title={item.subject}>
+                <p className="text-xs text-muted-foreground">New email · {item.to}</p>
+                <p className="text-sm text-foreground font-medium truncate" title={item.subject}>
                   {item.subject}
                 </p>
               </div>

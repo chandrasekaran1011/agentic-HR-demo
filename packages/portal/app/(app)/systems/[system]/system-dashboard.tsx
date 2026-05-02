@@ -56,31 +56,31 @@ export function SystemDashboard({ config, tickets }: Props) {
     <div className="flex flex-col h-full">
       {/* Hero header */}
       <div
-        className={`relative overflow-hidden border-b border-slate-800 bg-gradient-to-br ${config.toneFrom} ${config.toneTo}`}
+        className={`relative overflow-hidden border-b border-border bg-gradient-to-br ${config.toneFrom} ${config.toneTo}`}
       >
         <div className="relative px-8 pt-6 pb-5">
-          <div className="text-xs text-slate-400 mb-2">
-            <Link href="/" className="hover:text-slate-200">Home</Link>
-            <span className="mx-2 text-slate-600">/</span>
-            <Link href="/" className="hover:text-slate-200">Systems</Link>
-            <span className="mx-2 text-slate-600">/</span>
-            <span className="text-slate-300">{config.label}</span>
+          <div className="text-xs text-muted-foreground mb-2">
+            <Link href="/" className="hover:text-foreground">Home</Link>
+            <span className="mx-2 text-muted-foreground/70">/</span>
+            <Link href="/" className="hover:text-foreground">Systems</Link>
+            <span className="mx-2 text-muted-foreground/70">/</span>
+            <span className="text-foreground">{config.label}</span>
           </div>
           <div className="flex items-start justify-between gap-6">
             <div className="flex items-start gap-4">
-              <div className="size-12 rounded-xl bg-slate-900/80 backdrop-blur border border-slate-700 grid place-items-center">
-                {Icon && <Icon className="size-6 text-slate-200" strokeWidth={1.6} />}
+              <div className="size-12 rounded-xl bg-card/90 backdrop-blur border border-border grid place-items-center">
+                {Icon && <Icon className="size-6 text-foreground" strokeWidth={1.6} />}
               </div>
               <div>
                 <h1 className="text-2xl font-semibold tracking-tight">{config.label}</h1>
-                <p className="text-sm text-slate-300/80 mt-1">{config.description}</p>
-                <p className="text-xs text-slate-500 mt-1.5 font-mono">
+                <p className="text-sm text-foreground/80 mt-1">{config.description}</p>
+                <p className="text-xs text-muted-foreground mt-1.5 font-mono">
                   Ticket prefix: {config.prefix}-YYYY-####
                 </p>
               </div>
             </div>
             <button
-              className="flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-900/80 backdrop-blur px-4 py-2 text-sm hover:bg-slate-800 transition-colors"
+              className="flex items-center gap-2 rounded-lg border border-border bg-card/90 backdrop-blur px-4 py-2 text-sm hover:bg-muted transition-colors"
               title="Manual ticket creation (the agent normally creates these)"
             >
               <Plus className="size-4" /> New ticket
@@ -94,14 +94,14 @@ export function SystemDashboard({ config, tickets }: Props) {
         {config.stats.map((s) => (
           <div
             key={s.key}
-            className="rounded-lg border border-slate-800 bg-slate-900/50 px-4 py-3"
+            className="rounded-lg border border-border bg-card/60 px-4 py-3"
           >
-            <p className="text-[11px] uppercase tracking-wider text-slate-500">{s.label}</p>
+            <p className="text-[11px] uppercase tracking-wider text-muted-foreground">{s.label}</p>
             <p className={`text-2xl font-semibold mt-1 tabular-nums ${
               s.key === "done" ? "text-emerald-400" :
               s.key === "in_progress" ? "text-amber-400" :
               s.key === "errors" ? "text-rose-400" :
-              "text-slate-100"
+              "text-foreground"
             }`}>
               {counts[s.key as keyof typeof counts]}
             </p>
@@ -139,27 +139,27 @@ export function SystemDashboard({ config, tickets }: Props) {
         </FilterChip>
 
         <div className="ml-auto relative">
-          <Search className="size-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="size-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search tickets…"
-            className="rounded-md border border-slate-800 bg-slate-900/40 pl-9 pr-3 py-1.5 text-sm w-64 focus:outline-none focus:border-slate-600"
+            className="rounded-md border border-border bg-card/50 pl-9 pr-3 py-1.5 text-sm w-64 focus:outline-none focus:border-input"
           />
         </div>
       </div>
 
       {/* Table */}
       <div className="px-8 pb-8 flex-1 min-h-0">
-        <div className="rounded-lg border border-slate-800 bg-slate-900/40 overflow-auto h-full">
+        <div className="rounded-lg border border-border bg-card/50 overflow-auto h-full">
           <table className="w-full text-sm">
-            <thead className="bg-slate-900/80 sticky top-0">
-              <tr className="border-b border-slate-800">
+            <thead className="bg-card/90 sticky top-0">
+              <tr className="border-b border-border">
                 {config.columns.map((c) => (
                   <th
                     key={c.key}
-                    className={`px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-slate-500 ${c.width ?? ""}`}
+                    className={`px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground ${c.width ?? ""}`}
                   >
                     {c.label}
                   </th>
@@ -172,7 +172,7 @@ export function SystemDashboard({ config, tickets }: Props) {
                 <tr>
                   <td
                     colSpan={config.columns.length + 1}
-                    className="px-4 py-12 text-center text-slate-500 italic"
+                    className="px-4 py-12 text-center text-muted-foreground italic"
                   >
                     {tickets.length === 0
                       ? "No tickets yet. The agent creates tickets when it onboards a candidate."
@@ -184,14 +184,14 @@ export function SystemDashboard({ config, tickets }: Props) {
                   <tr
                     key={t.ticket_id}
                     onClick={() => setActive(t)}
-                    className="border-b border-slate-800/60 hover:bg-slate-800/40 cursor-pointer transition-colors"
+                    className="border-b border-border/60 hover:bg-muted/40 cursor-pointer transition-colors"
                   >
                     {config.columns.map((c) => (
                       <td key={c.key} className="px-4 py-3 align-middle">
                         <Cell column={c} ticket={t} />
                       </td>
                     ))}
-                    <td className="pr-4 text-slate-600">
+                    <td className="pr-4 text-muted-foreground/70">
                       <ChevronRight className="size-4" />
                     </td>
                   </tr>
@@ -221,26 +221,26 @@ export function SystemDashboard({ config, tickets }: Props) {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-              className="fixed top-0 right-0 z-50 h-screen w-full max-w-xl bg-slate-950 border-l border-slate-800 flex flex-col shadow-2xl"
+              className="fixed top-0 right-0 z-50 h-screen w-full max-w-xl bg-background border-l border-border flex flex-col shadow-2xl"
             >
               <div
-                className={`relative px-6 py-5 border-b border-slate-800 bg-gradient-to-br ${config.toneFrom} ${config.toneTo}`}
+                className={`relative px-6 py-5 border-b border-border bg-gradient-to-br ${config.toneFrom} ${config.toneTo}`}
               >
                 <button
                   onClick={() => setActive(null)}
-                  className="absolute top-4 right-4 p-1.5 rounded-md hover:bg-slate-800 transition-colors"
+                  className="absolute top-4 right-4 p-1.5 rounded-md hover:bg-muted transition-colors"
                   aria-label="Close"
                 >
-                  <X className="size-5 text-slate-400" />
+                  <X className="size-5 text-muted-foreground" />
                 </button>
-                <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
                   {config.label}
                 </p>
-                <p className="font-mono text-lg text-slate-100">{active.ticket_id}</p>
+                <p className="font-mono text-lg text-foreground">{active.ticket_id}</p>
                 {active.candidate_id && (
                   <Link
                     href={`/candidates/${active.candidate_id}`}
-                    className="inline-flex items-center gap-1 text-sm text-slate-300 mt-2 hover:text-slate-100 underline-offset-4 hover:underline"
+                    className="inline-flex items-center gap-1 text-sm text-foreground mt-2 hover:text-foreground underline-offset-4 hover:underline"
                     onClick={(e) => e.stopPropagation()}
                   >
                     For {active.candidate_id}
@@ -256,8 +256,8 @@ export function SystemDashboard({ config, tickets }: Props) {
                 </dl>
 
                 {/* Activity timeline placeholder */}
-                <div className="mt-8 pt-6 border-t border-slate-800">
-                  <p className="text-xs uppercase tracking-wider text-slate-500 mb-3">
+                <div className="mt-8 pt-6 border-t border-border">
+                  <p className="text-xs uppercase tracking-wider text-muted-foreground mb-3">
                     Activity
                   </p>
                   <div className="space-y-3">
@@ -266,8 +266,8 @@ export function SystemDashboard({ config, tickets }: Props) {
                         AG
                       </div>
                       <div>
-                        <p className="text-sm text-slate-200">Agent created the ticket</p>
-                        <p className="text-xs text-slate-500 mt-0.5">via cascade run</p>
+                        <p className="text-sm text-foreground">Agent created the ticket</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">via cascade run</p>
                       </div>
                     </div>
                     {active.status === "done" && (
@@ -276,8 +276,8 @@ export function SystemDashboard({ config, tickets }: Props) {
                           ✓
                         </div>
                         <div>
-                          <p className="text-sm text-slate-200">Resolved</p>
-                          <p className="text-xs text-slate-500 mt-0.5">{active.artifact_summary}</p>
+                          <p className="text-sm text-foreground">Resolved</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{active.artifact_summary}</p>
                         </div>
                       </div>
                     )}
@@ -312,12 +312,12 @@ function FilterChip({
       ? "data-[active=true]:bg-amber-500/20 data-[active=true]:border-amber-500/40 data-[active=true]:text-amber-200"
       : tone === "emerald"
       ? "data-[active=true]:bg-emerald-500/20 data-[active=true]:border-emerald-500/40 data-[active=true]:text-emerald-200"
-      : "data-[active=true]:bg-slate-700 data-[active=true]:text-slate-100";
+      : "data-[active=true]:bg-muted data-[active=true]:text-foreground";
   return (
     <button
       data-active={active}
       onClick={onClick}
-      className={`flex items-center gap-2 rounded-full border border-slate-800 bg-slate-900/40 px-3 py-1 text-xs text-slate-400 hover:bg-slate-800 transition-colors ${toneClasses}`}
+      className={`flex items-center gap-2 rounded-full border border-border bg-card/50 px-3 py-1 text-xs text-muted-foreground hover:bg-muted transition-colors ${toneClasses}`}
     >
       {children}
       <span className="text-[10px] tabular-nums">{count}</span>
@@ -330,13 +330,13 @@ function Cell({ column, ticket }: { column: ColumnDef; ticket: Ticket }) {
   switch (column.kind) {
     case "ticket-id":
       return (
-        <span className="font-mono text-xs text-slate-300">{raw ?? "—"}</span>
+        <span className="font-mono text-xs text-foreground">{raw ?? "—"}</span>
       );
     case "candidate":
       return (
         <Link
           href={`/candidates/${raw}`}
-          className="text-slate-200 hover:text-slate-50 hover:underline underline-offset-4"
+          className="text-foreground hover:text-foreground hover:underline underline-offset-4"
           onClick={(e) => e.stopPropagation()}
         >
           {formatCandidateName(raw ?? "")}
@@ -345,11 +345,11 @@ function Cell({ column, ticket }: { column: ColumnDef; ticket: Ticket }) {
     case "status":
       return <StatusPill status={ticket.status ?? "—"} />;
     case "code":
-      return <span className="font-mono text-xs text-slate-300">{raw ?? "—"}</span>;
+      return <span className="font-mono text-xs text-foreground">{raw ?? "—"}</span>;
     case "list":
-      return <span className="text-slate-300 text-xs truncate block max-w-xs" title={raw}>{raw ?? "—"}</span>;
+      return <span className="text-foreground text-xs truncate block max-w-xs" title={raw}>{raw ?? "—"}</span>;
     case "value-set": {
-      if (!raw) return <span className="text-slate-500">—</span>;
+      if (!raw) return <span className="text-muted-foreground">—</span>;
       const items = String(raw).split(/,\s*/).slice(0, 3);
       const more = String(raw).split(/,\s*/).length - items.length;
       return (
@@ -357,13 +357,13 @@ function Cell({ column, ticket }: { column: ColumnDef; ticket: Ticket }) {
           {items.map((i) => (
             <span
               key={i}
-              className="rounded bg-slate-800/80 border border-slate-700 px-1.5 py-0.5 text-[11px] text-slate-300"
+              className="rounded bg-muted/80 border border-border px-1.5 py-0.5 text-[11px] text-foreground"
             >
               {i}
             </span>
           ))}
           {more > 0 && (
-            <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[11px] text-slate-500">
+            <span className="rounded bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground">
               +{more}
             </span>
           )}
@@ -372,7 +372,7 @@ function Cell({ column, ticket }: { column: ColumnDef; ticket: Ticket }) {
     }
     case "text":
     default:
-      return <span className="text-slate-300">{raw ?? "—"}</span>;
+      return <span className="text-foreground">{raw ?? "—"}</span>;
   }
 }
 
@@ -381,13 +381,13 @@ function StatusPill({ status }: { status: string }) {
     done: { label: "Resolved", cls: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" },
     in_progress: { label: "In Progress", cls: "bg-amber-500/15 text-amber-300 border-amber-500/30" },
     amending: { label: "Amending", cls: "bg-amber-500/15 text-amber-300 border-amber-500/30" },
-    pending: { label: "Pending", cls: "bg-slate-700/40 text-slate-300 border-slate-700" },
+    pending: { label: "Pending", cls: "bg-muted/40 text-foreground border-border" },
     error: { label: "Error", cls: "bg-rose-500/15 text-rose-300 border-rose-500/30" },
     failed: { label: "Failed", cls: "bg-rose-500/15 text-rose-300 border-rose-500/30" },
     delivered: { label: "Delivered", cls: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" },
     issued: { label: "Issued", cls: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" },
   };
-  const c = config[status] ?? { label: status || "—", cls: "bg-slate-700/40 text-slate-300 border-slate-700" };
+  const c = config[status] ?? { label: status || "—", cls: "bg-muted/40 text-foreground border-border" };
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${c.cls}`}
@@ -402,34 +402,34 @@ function DetailRow({ field, ticket }: { field: DetailField; ticket: Ticket }) {
   const raw = ticket[field.key];
   return (
     <div className="grid grid-cols-[140px_1fr] gap-4 items-start">
-      <dt className="text-xs uppercase tracking-wider text-slate-500 pt-0.5">
+      <dt className="text-xs uppercase tracking-wider text-muted-foreground pt-0.5">
         {field.label}
       </dt>
-      <dd className="text-sm text-slate-200">
+      <dd className="text-sm text-foreground">
         {field.kind === "list" && raw ? (
           <ul className="space-y-1">
             {String(raw)
               .split(/,\s*/)
               .map((item) => (
                 <li key={item} className="flex items-start gap-2">
-                  <span className="text-slate-600 mt-1.5 text-[8px]">●</span>
+                  <span className="text-muted-foreground/70 mt-1.5 text-[8px]">●</span>
                   <span>{item}</span>
                 </li>
               ))}
           </ul>
         ) : field.kind === "code" ? (
-          <span className="font-mono text-slate-100 bg-slate-900 border border-slate-800 rounded px-2 py-0.5 text-xs">
+          <span className="font-mono text-foreground bg-card border border-border rounded px-2 py-0.5 text-xs">
             {raw ?? "—"}
           </span>
         ) : field.kind === "email" && raw ? (
           <a
             href={`mailto:${raw}`}
-            className="text-slate-200 hover:text-slate-50 underline-offset-4 hover:underline"
+            className="text-foreground hover:text-foreground underline-offset-4 hover:underline"
           >
             {raw}
           </a>
         ) : (
-          <span>{raw ?? <span className="text-slate-500">—</span>}</span>
+          <span>{raw ?? <span className="text-muted-foreground">—</span>}</span>
         )}
       </dd>
     </div>

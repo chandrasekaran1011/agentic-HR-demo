@@ -21,7 +21,7 @@ const SYSTEM_LABELS: Record<string, string> = {
 };
 
 const STATUS_RING: Record<Tile["status"], string> = {
-  pending: "border-slate-700",
+  pending: "border-border",
   in_progress: "border-amber-500/70",
   done: "border-emerald-500/70",
   error: "border-rose-500/70",
@@ -111,7 +111,7 @@ export function TileGrid({ candidateId, initialTiles }: Props) {
             scale: t.status === "in_progress" || t.status === "amending" ? 1.02 : 1,
           }}
           transition={{ type: "spring", stiffness: 220, damping: 22 }}
-          className={`rounded-lg border-2 ${STATUS_RING[t.status]} bg-slate-900 p-4`}
+          className={`rounded-lg border-2 ${STATUS_RING[t.status]} bg-card p-4`}
         >
           <p className="text-sm font-medium">{SYSTEM_LABELS[t.system] ?? t.system}</p>
           <p
@@ -122,7 +122,7 @@ export function TileGrid({ candidateId, initialTiles }: Props) {
                 ? "text-amber-400"
                 : t.status === "error"
                 ? "text-rose-400"
-                : "text-slate-500"
+                : "text-muted-foreground"
             }`}
           >
             {STATUS_LABEL[t.status]}
@@ -134,7 +134,7 @@ export function TileGrid({ candidateId, initialTiles }: Props) {
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className="text-xs text-slate-300 mt-2 truncate"
+                className="text-xs text-foreground mt-2 truncate"
                 title={t.artifact_summary}
               >
                 {t.artifact_summary}

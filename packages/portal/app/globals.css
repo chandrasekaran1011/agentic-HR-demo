@@ -3,12 +3,43 @@
 @tailwind utilities;
 
 @layer base {
+  /* ── Light theme (default) ───────────────────────────────────── */
   :root {
-    --background: 222 47% 5%;
+    --background: 30 33% 98%;          /* warm paper */
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 222 47% 11%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 220 14% 96%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 222 47% 50%;
+
+    /* Surface tokens for the chat sidebar / dashboard panels (warmer than card) */
+    --surface: 30 30% 96%;
+    --surface-strong: 30 30% 99%;
+
+    --radius: 0.5rem;
+    --brand: #3b82f6;
+  }
+
+  /* ── Dark theme ──────────────────────────────────────────────── */
+  .dark {
+    --background: 222 47% 4%;
     --foreground: 210 40% 98%;
-    --card: 222 47% 8%;
+    --card: 222 47% 7%;
     --card-foreground: 210 40% 98%;
-    --popover: 222 47% 8%;
+    --popover: 222 47% 7%;
     --popover-foreground: 210 40% 98%;
     --primary: 210 40% 98%;
     --primary-foreground: 222 47% 11%;
@@ -23,8 +54,9 @@
     --border: 217 33% 18%;
     --input: 217 33% 18%;
     --ring: 213 27% 84%;
-    --radius: 0.5rem;
-    --brand: #3b82f6;
+
+    --surface: 222 47% 8%;
+    --surface-strong: 222 47% 10%;
   }
 
   * {
@@ -32,5 +64,6 @@
   }
   body {
     @apply bg-background text-foreground;
+    transition: background-color 0.25s ease, color 0.25s ease;
   }
 }

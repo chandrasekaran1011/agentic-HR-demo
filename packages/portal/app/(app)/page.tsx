@@ -46,7 +46,7 @@ export default function Home() {
       <div className="p-8 space-y-10">
         <div>
           <h1 className="text-3xl font-semibold">HR Onboarding Portal</h1>
-          <p className="text-slate-400 mt-1">
+          <p className="text-muted-foreground mt-1">
             Talk to the agent in the chat sidebar, or jump straight to any section below.
           </p>
         </div>
@@ -94,7 +94,7 @@ function Section({
     <section>
       <div className="mb-3">
         <h2 className="text-lg font-semibold">{title}</h2>
-        {subtitle && <p className="text-sm text-slate-500">{subtitle}</p>}
+        {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
       </div>
       {children}
     </section>
@@ -117,21 +117,21 @@ function Card({
   return (
     <Link
       href={href}
-      className={`group rounded-lg border p-4 hover:border-slate-600 hover:bg-slate-900 transition-colors block ${
+      className={`group rounded-lg border p-4 hover:border-input hover:bg-card transition-colors block ${
         featured
           ? "border-amber-500/40 bg-amber-500/5"
-          : "border-slate-800 bg-slate-900/40"
+          : "border-border bg-card/50"
       }`}
     >
       <div className="flex items-start gap-3">
         <Icon
           className={`size-5 mt-0.5 shrink-0 ${
-            featured ? "text-amber-400" : "text-slate-400 group-hover:text-slate-200"
+            featured ? "text-amber-400" : "text-muted-foreground group-hover:text-foreground"
           }`}
         />
         <div className="min-w-0">
           <p className="font-medium">{label}</p>
-          <p className="text-xs text-slate-500 mt-0.5">{desc}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{desc}</p>
         </div>
       </div>
     </Link>

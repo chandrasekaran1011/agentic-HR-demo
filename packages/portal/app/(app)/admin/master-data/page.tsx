@@ -14,7 +14,7 @@ export default function MasterDataIndex() {
     <AppShell>
       <div className="p-8 space-y-6">
         <h1 className="text-2xl font-semibold">Master Data</h1>
-        <p className="text-sm text-slate-400">
+        <p className="text-sm text-muted-foreground">
           The agent's decisions are grounded in this master data. Edit a row and the next cascade applies it.
         </p>
         <div className="grid grid-cols-2 gap-4">
@@ -22,8 +22,8 @@ export default function MasterDataIndex() {
             <Link
               key={s.href}
               href={s.href}
-              className={`rounded-lg border p-5 hover:bg-slate-900/60 transition-colors ${
-                s.featured ? "border-amber-500/40 bg-amber-500/5" : "border-slate-800 bg-slate-900"
+              className={`rounded-lg border p-5 hover:bg-card/70 transition-colors ${
+                s.featured ? "border-amber-500/40 bg-amber-500/5" : "border-border bg-card"
               }`}
             >
               <div className="flex items-center gap-2">
@@ -32,7 +32,7 @@ export default function MasterDataIndex() {
                   <span className="text-xs bg-amber-500/20 text-amber-300 rounded px-2 py-0.5">★ key screen</span>
                 )}
               </div>
-              <p className="text-sm text-slate-400 mt-1">{s.desc}</p>
+              <p className="text-sm text-muted-foreground mt-1">{s.desc}</p>
             </Link>
           ))}
         </div>

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useVoiceAgent } from "./voice-agent";
 import { VoiceOverlay, type VoiceOverlayTurn } from "./voice-overlay";
+import { ThemeToggle } from "./theme-toggle";
 
 interface ChatSidebarProps {
   userName: string;
@@ -177,33 +178,36 @@ export function ChatSidebar({ userName, companyName }: ChatSidebarProps) {
   );
 
   return (
-    <aside className="relative w-[30%] min-w-[400px] max-w-[640px] bg-slate-900 border-r border-slate-800 flex flex-col h-screen">
+    <aside className="relative w-[30%] min-w-[400px] max-w-[640px] bg-surface border-r border-border flex flex-col h-screen">
       <VoiceOverlay
         open={voice.connected || voice.state === "connecting"}
         state={voice.state}
         turns={voiceTurns}
         onEnd={voice.stop}
       />
-      <div className="p-6 border-b border-slate-800 flex items-center justify-between">
-        <div>
+      <div className="p-6 border-b border-border flex items-center justify-between gap-2">
+        <div className="min-w-0">
           <a href="/" className="block hover:opacity-80">
-            <h1 className="text-lg font-semibold">{companyName}</h1>
-            <p className="text-xs text-slate-400">HR Onboarding Agent</p>
+            <h1 className="text-lg font-semibold truncate">{companyName}</h1>
+            <p className="text-xs text-muted-foreground">HR Onboarding Agent</p>
           </a>
         </div>
-        <button
-          onClick={clearChat}
-          className="text-xs text-slate-500 hover:text-slate-200"
-          title="Clear conversation"
-        >
-          clear
-        </button>
+        <div className="flex items-center gap-1.5">
+          <ThemeToggle />
+          <button
+            onClick={clearChat}
+            className="text-xs text-muted-foreground hover:text-foreground"
+            title="Clear conversation"
+          >
+            clear
+          </button>
+        </div>
       </div>
 
       <div ref={transcriptRef} className="flex-1 p-4 overflow-y-auto space-y-3">
         {turns.length === 0 && (
-          <p className="text-sm text-slate-500 italic px-2">
-            Start by asking about a candidate, or say "Onboard a new joiner…"
+          <p className="text-sm text-muted-foreground italic px-2">
+            Start by asking about a candidate, or say &ldquo;Onboard a new joiner…&rdquo;
           </p>
         )}
         <AnimatePresence initial={false}>
@@ -223,14 +227,14 @@ export function ChatSidebar({ userName, companyName }: ChatSidebarProps) {
                 />
               ) : (
                 <div
-                  className={`max-w-[88%] rounded-lg px-3 py-2 text-sm ${
+                  className={`max-w-[88%] rounded-lg px-3 py-2 text-sm border ${
                     t.role === "user"
-                      ? "bg-blue-600/30 text-blue-50 border border-blue-600/40"
-                      : "bg-slate-800 text-slate-100 border border-slate-700"
+                      ? "bg-blue-500/15 dark:bg-blue-600/30 text-blue-900 dark:text-blue-50 border-blue-500/30 dark:border-blue-600/40"
+                      : "bg-card text-card-foreground border-border"
                   }`}
                 >
                   {t.source === "voice" && (
-                    <div className="text-xs text-slate-400 mb-1">🎙 voice</div>
+                    <div className="text-xs text-muted-foreground mb-1">🎙 voice</div>
                   )}
                   {t.text || (t.pending ? <span className="opacity-60">…</span> : "")}
                 </div>
@@ -240,14 +244,14 @@ export function ChatSidebar({ userName, companyName }: ChatSidebarProps) {
         </AnimatePresence>
       </div>
 
-      <div className="p-4 border-t border-slate-800 space-y-3">
+      <div className="p-4 border-t border-border space-y-3">
         <div className="flex items-end gap-2">
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={onKeyDown}
             placeholder="Ask the agent…"
-            className="flex-1 min-h-[44px] max-h-32 rounded-md bg-slate-950 border border-slate-700 px-3 py-2 text-sm resize-none focus:outline-none focus:border-slate-500"
+            className="flex-1 min-h-[44px] max-h-32 rounded-md bg-background border border-border px-3 py-2 text-sm resize-none focus:outline-none focus:border-ring placeholder:text-muted-foreground"
             rows={1}
             disabled={streaming}
           />
@@ -263,7 +267,7 @@ export function ChatSidebar({ userName, companyName }: ChatSidebarProps) {
             {voice.connected ? <Square className="size-4" /> : <Mic className="size-4" />}
           </Button>
         </div>
-        <div className="flex justify-between items-center text-xs text-slate-400">
+        <div className="flex justify-between items-center text-xs text-muted-foreground">
           <span>
             {voice.state === "listening"
               ? "🎤 listening…"
@@ -275,7 +279,7 @@ export function ChatSidebar({ userName, companyName }: ChatSidebarProps) {
           </span>
           <div className="flex gap-3">
             <span>{userName}</span>
-            <button onClick={logout} className="hover:text-slate-200 underline-offset-2 hover:underline">
+            <button onClick={logout} className="hover:text-foreground underline-offset-2 hover:underline">
               logout
             </button>
           </div>
@@ -296,16 +300,16 @@ function ToolCard({
 }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="max-w-[88%] w-full rounded-md border border-slate-700 bg-slate-950/60 px-3 py-2 text-xs">
+    <div className="max-w-[88%] w-full rounded-md border border-border bg-background/60 px-3 py-2 text-xs">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center justify-between w-full text-slate-300 hover:text-slate-100"
+        className="flex items-center justify-between w-full text-muted-foreground hover:text-foreground"
       >
         <span>
-          <span className="text-violet-400 font-mono mr-2">tool</span>
+          <span className="text-violet-500 dark:text-violet-400 font-mono mr-2">tool</span>
           <span className="font-medium">{name}</span>
           {result && (
-            <span className={`ml-2 ${result.ok ? "text-emerald-400" : "text-rose-400"}`}>
+            <span className={`ml-2 ${result.ok ? "text-emerald-500 dark:text-emerald-400" : "text-rose-500 dark:text-rose-400"}`}>
               {result.ok ? "✓" : "✗"}
             </span>
           )}
@@ -313,9 +317,9 @@ function ToolCard({
         <span className="text-slate-500">{open ? "▾" : "▸"}</span>
       </button>
       {open && (
-        <div className="mt-2 space-y-1 text-slate-400 font-mono">
+        <div className="mt-2 space-y-1 text-muted-foreground font-mono">
           {args && <div className="break-all">args: {args}</div>}
-          {result?.message && <div className="text-slate-300 whitespace-pre-wrap">{result.message}</div>}
+          {result?.message && <div className="text-foreground whitespace-pre-wrap">{result.message}</div>}
         </div>
       )}
     </div>

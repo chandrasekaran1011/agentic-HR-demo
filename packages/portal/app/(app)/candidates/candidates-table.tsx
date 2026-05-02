@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { useSseEvents, type AgentEvent } from "@/components/use-sse-events";
 
 const statusVariant: Record<Candidate["status"], string> = {
-  pending: "bg-slate-700 text-slate-200",
+  pending: "bg-muted text-foreground",
   in_progress: "bg-amber-600/30 text-amber-200 border-amber-600/40",
   complete: "bg-emerald-600/30 text-emerald-200 border-emerald-600/40",
 };
@@ -89,7 +89,7 @@ export function CandidatesTable({ initialData }: { initialData: Candidate[] }) {
         {candidates.map((c) => (
           <TableRow
             key={c.id}
-            className="cursor-pointer hover:bg-slate-900/60"
+            className="cursor-pointer hover:bg-card/70"
             onClick={() => router.push(`/candidates/${c.id}`)}
           >
             <TableCell>

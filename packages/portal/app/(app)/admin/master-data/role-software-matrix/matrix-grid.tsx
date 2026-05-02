@@ -36,17 +36,17 @@ export function MatrixGrid({ roles, software, initialMatrix }: Props) {
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-slate-800 bg-slate-900">
+    <div className="overflow-x-auto rounded-lg border border-border bg-card">
       <table className="text-sm border-collapse">
         <thead>
           <tr>
-            <th className="sticky left-0 bg-slate-900 px-4 py-3 text-left font-medium text-slate-400 border-b border-slate-800 min-w-[200px]">
+            <th className="sticky left-0 bg-card px-4 py-3 text-left font-medium text-muted-foreground border-b border-border min-w-[200px]">
               Role
             </th>
             {software.map((s) => (
               <th
                 key={s.id}
-                className="px-3 py-3 text-center font-medium text-slate-400 border-b border-slate-800 min-w-[110px]"
+                className="px-3 py-3 text-center font-medium text-muted-foreground border-b border-border min-w-[110px]"
                 title={s.category}
               >
                 {s.name}
@@ -58,10 +58,10 @@ export function MatrixGrid({ roles, software, initialMatrix }: Props) {
           {roles.map((role) => {
             const entitled = new Set(matrix[role.id] ?? []);
             return (
-              <tr key={role.id} className="hover:bg-slate-800/30">
-                <td className="sticky left-0 bg-slate-900 px-4 py-3 border-b border-slate-800/60 font-medium">
+              <tr key={role.id} className="hover:bg-muted/30">
+                <td className="sticky left-0 bg-card px-4 py-3 border-b border-border/60 font-medium">
                   {role.name}
-                  <span className="block text-xs text-slate-500">
+                  <span className="block text-xs text-muted-foreground">
                     {role.family} · {role.level}
                   </span>
                 </td>
@@ -71,7 +71,7 @@ export function MatrixGrid({ roles, software, initialMatrix }: Props) {
                   return (
                     <td
                       key={s.id}
-                      className="text-center border-b border-slate-800/60 p-0"
+                      className="text-center border-b border-border/60 p-0"
                     >
                       <button
                         type="button"
@@ -80,7 +80,7 @@ export function MatrixGrid({ roles, software, initialMatrix }: Props) {
                         className={`w-full h-full py-3 transition-colors ${
                           isOn
                             ? "bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300"
-                            : "hover:bg-slate-700/40 text-slate-700"
+                            : "hover:bg-muted/40 text-muted-foreground/40"
                         }`}
                         aria-pressed={isOn}
                         title={isOn ? "Click to remove" : "Click to add"}
