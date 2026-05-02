@@ -177,14 +177,13 @@ export function ChatSidebar({ userName, companyName }: ChatSidebarProps) {
   );
 
   return (
-    <>
+    <aside className="relative w-[30%] min-w-[400px] max-w-[640px] bg-slate-900 border-r border-slate-800 flex flex-col h-screen">
       <VoiceOverlay
         open={voice.connected || voice.state === "connecting"}
         state={voice.state}
         turns={voiceTurns}
         onEnd={voice.stop}
       />
-    <aside className="w-[30%] min-w-[400px] max-w-[640px] bg-slate-900 border-r border-slate-800 flex flex-col h-screen">
       <div className="p-6 border-b border-slate-800 flex items-center justify-between">
         <div>
           <a href="/" className="block hover:opacity-80">
@@ -283,7 +282,6 @@ export function ChatSidebar({ userName, companyName }: ChatSidebarProps) {
         </div>
       </div>
     </aside>
-    </>
   );
 }
 
