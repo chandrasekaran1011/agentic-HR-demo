@@ -33,7 +33,11 @@ export default async function CandidateDetailPage({
           <ProfileHeader candidate={candidate} />
           <Stopwatch candidateId={id} />
         </div>
-        <TileGrid candidateId={id} initialTiles={tiles} />
+        <TileGrid
+          candidateId={id}
+          candidateTeam={candidate.team}
+          initialTiles={tiles}
+        />
         <div>
           <h2 className="text-lg font-semibold mb-4">Reasoning</h2>
           <ReasoningStream candidateId={id} />

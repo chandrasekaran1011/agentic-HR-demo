@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Tile } from "@hr-agent/shared";
 import { useSseEvents, type AgentEvent } from "@/components/use-sse-events";
+import { TileActionDrawer } from "./tile-action-drawer";
 
 const SYSTEM_LABELS: Record<string, string> = {
   hrms: "HRMS",
@@ -38,15 +39,17 @@ const STATUS_LABEL: Record<Tile["status"], string> = {
 
 interface Props {
   candidateId: string;
+  candidateTeam: string;
   initialTiles: Tile[];
 }
 
-export function TileGrid({ candidateId, initialTiles }: Props) {
+export function TileGrid({ candidateId, candidateTeam, initialTiles }: Props) {
   const [tiles, setTiles] = useState<Record<string, Tile>>(() => {
     const m: Record<string, Tile> = {};
     for (const t of initialTiles) m[t.system] = t;
     return m;
   });
+  const [activeTile, setActiveTile] = useState<Tile | null>(null);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
   // On mount and periodically while any tile is in_progress/pending/amending,
@@ -102,47 +105,59 @@ export function TileGrid({ candidateId, initialTiles }: Props) {
   });
 
   return (
-    <div className="grid grid-cols-4 gap-4">
-      {Object.values(tiles).map((t) => (
-        <motion.div
-          key={t.system}
-          layout
-          animate={{
-            scale: t.status === "in_progress" || t.status === "amending" ? 1.02 : 1,
-          }}
-          transition={{ type: "spring", stiffness: 220, damping: 22 }}
-          className={`rounded-lg border-2 ${STATUS_RING[t.status]} bg-card p-4`}
-        >
-          <p className="text-sm font-medium">{SYSTEM_LABELS[t.system] ?? t.system}</p>
-          <p
-            className={`text-xs mt-1 capitalize ${
-              t.status === "done"
-                ? "text-emerald-400"
-                : t.status === "in_progress" || t.status === "amending"
-                ? "text-amber-400"
-                : t.status === "error"
-                ? "text-rose-400"
-                : "text-muted-foreground"
-            }`}
+    <>
+      <div className="grid grid-cols-4 gap-4">
+        {Object.values(tiles).map((t) => (
+          <motion.button
+            key={t.system}
+            type="button"
+            layout
+            animate={{
+              scale: t.status === "in_progress" || t.status === "amending" ? 1.02 : 1,
+            }}
+            transition={{ type: "spring", stiffness: 220, damping: 22 }}
+            whileHover={{ y: -2 }}
+            onClick={() => setActiveTile(t)}
+            className={`text-left rounded-lg border-2 ${STATUS_RING[t.status]} bg-card hover:bg-accent/40 p-4 transition-colors cursor-pointer`}
+            title="Click for actions"
           >
-            {STATUS_LABEL[t.status]}
-          </p>
-          <AnimatePresence>
-            {t.artifact_summary && (
-              <motion.p
-                key={t.artifact_summary}
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className="text-xs text-foreground mt-2 truncate"
-                title={t.artifact_summary}
-              >
-                {t.artifact_summary}
-              </motion.p>
-            )}
-          </AnimatePresence>
-        </motion.div>
-      ))}
-    </div>
+            <p className="text-sm font-medium">{SYSTEM_LABELS[t.system] ?? t.system}</p>
+            <p
+              className={`text-xs mt-1 capitalize ${
+                t.status === "done"
+                  ? "text-emerald-400"
+                  : t.status === "in_progress" || t.status === "amending"
+                  ? "text-amber-400"
+                  : t.status === "error"
+                  ? "text-rose-400"
+                  : "text-muted-foreground"
+              }`}
+            >
+              {STATUS_LABEL[t.status]}
+            </p>
+            <AnimatePresence>
+              {t.artifact_summary && (
+                <motion.p
+                  key={t.artifact_summary}
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className="text-xs text-foreground mt-2 truncate"
+                  title={t.artifact_summary}
+                >
+                  {t.artifact_summary}
+                </motion.p>
+              )}
+            </AnimatePresence>
+          </motion.button>
+        ))}
+      </div>
+      <TileActionDrawer
+        candidateId={candidateId}
+        candidateTeam={candidateTeam}
+        tile={activeTile}
+        onClose={() => setActiveTile(null)}
+      />
+    </>
   );
 }

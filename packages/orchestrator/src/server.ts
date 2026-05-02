@@ -1,7 +1,8 @@
 import Fastify from "fastify";
 import { z } from "zod";
 import type { Candidate } from "@hr-agent/shared";
-import { runOnboarding, amendOnboarding } from "./supervisor/run-cascade";
+import { runOnboarding, amendOnboarding, runSingleSystem } from "./supervisor/run-cascade";
+import { SYSTEMS, type SystemName } from "@hr-agent/shared";
 import { getRedis } from "./lib/redis";
 import { AGENT_TOOLS, executeToolCall } from "./agent-tools/index.js";
 import { runAgentTurn, readRealtimeConfig } from "./llm/azure-openai";
@@ -183,11 +184,19 @@ request for background verification (BGV); the rest of the systems
 1. list_pending_candidates() — when user asks "who needs onboarding"
    or "what's pending"; or as a reference before triggering one
 2. lookup_status(name_or_id) — for "how is X going" / "what's the status of Y"
-3. start_onboarding(name_or_id) — to trigger the cascade. Pass JUST the
-   candidate's name. Do NOT ask the user for role/team/manager/joining_date —
+3. start_onboarding(name_or_id) — to trigger the FULL 12-step cascade.
+   Pass JUST the candidate's name. Do NOT ask for role/team/manager/joining_date —
    ATS already provided those.
-4. amend_onboarding(name, changes) — when HR corrects details after the
-   cascade has started. Re-runs only the affected systems.
+4. amend_onboarding(name, changes) — when HR corrects details (role/team/etc.)
+   after the cascade has started. Re-runs only the affected systems.
+5. run_single_step(name_or_id, system) — INDIVIDUAL action on ONE system.
+   Use this when HR asks for a specific step like "request the ID card",
+   "resend the welcome email", "redo IT", "apply for parking", "kick off
+   training". Pick the matching system from: hrms, documents, buddy, it,
+   software, training, welcome, idcard, payroll, manager_notify, seating,
+   parking. NEVER refuse a single-step request — call this tool.
+6. reassign_buddy(name_or_id, buddy) — assign a SPECIFIC buddy when HR
+   names a person, e.g. "make Rohan her buddy" or "reassign to meera@acme.com".
 
 # Conversation style
 - Warm, professional, BRIEF. One or two sentences. No filler.
@@ -196,6 +205,8 @@ request for background verification (BGV); the rest of the systems
 - Confirm the candidate name back to the user before calling start_onboarding,
   e.g. "Got it — kicking off onboarding for Karan Shah. The background
   verification request goes out first."
+- For single-step requests, just confirm and call run_single_step. Do NOT
+  push HR toward the full cascade if they only want one thing.
 - When tools succeed, summarize in one short sentence.
 - On "thank you" / "goodbye", reply briefly and warmly. Do not invent next steps.
 ${guardrails()}`;
@@ -218,14 +229,23 @@ welcome, and the other 9 systems run in parallel.
 # Tools
 - list_pending_candidates() — show ATS-handed candidates awaiting onboarding
 - lookup_status(name_or_id) — current state of an in-progress candidate
-- start_onboarding(name_or_id) — trigger the cascade. Pass JUST the name.
-  Do NOT ask the user for role / team / manager / joining_date — ATS
+- start_onboarding(name_or_id) — trigger the FULL 12-step cascade. Pass JUST
+  the name. Do NOT ask for role / team / manager / joining_date — ATS
   already supplied those.
 - amend_onboarding(name, changes) — modify after start; re-runs affected systems
+- run_single_step(name_or_id, system) — INDIVIDUAL action on ONE system.
+  Use this when HR asks for a specific step like "request the ID card",
+  "resend the welcome email", "redo IT", "apply for parking", "kick off
+  training". The 12 systems: hrms, documents, buddy, it, software,
+  training, welcome, idcard, payroll, manager_notify, seating, parking.
+  NEVER refuse a single-step request — pick the matching system and call.
+- reassign_buddy(name_or_id, buddy) — assign a SPECIFIC buddy when HR
+  names a person.
 
 # Style
 Warm, concise, professional. No filler. Confirm by name before calling
-start_onboarding. Office is in ${c.officeCity}. Today is ${new Date().toISOString().slice(0, 10)}.
+start_onboarding or run_single_step. For single-step asks, do NOT push HR
+toward the full cascade. Office is in ${c.officeCity}. Today is ${new Date().toISOString().slice(0, 10)}.
 ${guardrails()}`;
 }
 
@@ -404,6 +424,47 @@ app.post("/voice/tool", async (req, reply) => {
   if (!body.name) return reply.code(400).send({ error: "missing tool name" });
   const result = await executeToolCall(body.name, body.arguments ?? "{}");
   return reply.send(result);
+});
+
+// ─── HR self-service per-tile actions ────────────────────────────
+
+const RunSingleBodySchema = z.object({
+  candidate_id: z.string(),
+  system: z.string().refine((s) => (SYSTEMS as readonly string[]).includes(s), "unknown system"),
+  override: z.record(z.string(), z.unknown()).optional(),
+});
+
+app.post("/run/single", async (req, reply) => {
+  const parsed = RunSingleBodySchema.safeParse(req.body);
+  if (!parsed.success) {
+    return reply.code(400).send({ error: "invalid body", issues: parsed.error.issues });
+  }
+  try {
+    const { candidate_id, system, override } = parsed.data;
+    const result = await runSingleSystem(candidate_id, system as SystemName, override);
+    return reply.send({ ok: true, ...result });
+  } catch (err) {
+    return reply.code(500).send({ error: (err as Error).message });
+  }
+});
+
+// Expose a team's buddy pool so the portal can render a picker for
+// HR's manual buddy reassignment.
+app.get("/teams/:team/buddies", async (req, reply) => {
+  const teamName = (req.params as { team: string }).team;
+  const r = getRedis();
+  const all = await r.hgetall("master:teams");
+  for (const v of Object.values(all)) {
+    const team = JSON.parse(v) as {
+      id: string;
+      name: string;
+      buddy_pool: { name: string; email: string; role_family: string; tenure_years: number }[];
+    };
+    if (team.id === teamName || team.name.toLowerCase() === teamName.toLowerCase()) {
+      return reply.send({ team: team.name, buddies: team.buddy_pool });
+    }
+  }
+  return reply.code(404).send({ error: "team not found" });
 });
 
 const port = Number(process.env.PORT ?? 3001);

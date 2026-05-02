@@ -145,6 +145,50 @@ async function runAgent(system: SystemName, candidate: Candidate, runId: string)
   });
 }
 
+/**
+ * HR self-service: re-execute a single sub-agent for a candidate.
+ * Used by per-tile actions on the candidate detail page (re-run, re-send,
+ * re-assign buddy). `override` is merged into the subconfig the agent sees,
+ * so e.g. `{buddy_email: "..."}` can override the buddy pick.
+ */
+export async function runSingleSystem(
+  candidateId: string,
+  system: SystemName,
+  override?: Record<string, unknown>
+): Promise<{ run_id: string }> {
+  const r = getRedis();
+  const c = await r.hgetall(`candidate:${candidateId}`);
+  if (!c.id) throw new Error(`candidate not found: ${candidateId}`);
+
+  const candidate: Candidate = {
+    id: c.id,
+    name: c.name ?? "",
+    email: c.email ?? "",
+    role: c.role ?? "",
+    team: c.team ?? "",
+    manager: c.manager ?? "",
+    joining_date: c.joining_date ?? "",
+    current_city: c.current_city,
+    status: (c.status as Candidate["status"]) ?? "in_progress",
+    progress: parseInt(c.progress ?? "0", 10),
+    photo_url: c.photo_url ?? "",
+    created_at: c.created_at ?? "",
+    updated_at: c.updated_at ?? "",
+  };
+
+  const runId = `single-${system}-${Date.now()}`;
+
+  // Merge override into the existing desired-state slice for this system
+  const desired = JSON.parse(((await r.get(`desired:${candidateId}`)) ?? "{}"));
+  const slice = { ...((desired as Record<string, unknown>)[system] ?? {}), ...(override ?? {}) };
+
+  const agent = AGENT_REGISTRY[system]();
+  await agent.run({ candidate, subconfig: slice, runId });
+  await updateCandidateProgress(candidateId);
+
+  return { run_id: runId };
+}
+
 export async function amendOnboarding(
   candidate: Candidate,
   changes: Partial<Pick<Candidate, "role" | "team" | "manager" | "joining_date" | "email">>

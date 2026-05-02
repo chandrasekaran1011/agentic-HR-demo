@@ -1,7 +1,8 @@
 import type { ChatCompletionTool } from "openai/resources/chat/completions";
-import type { Candidate } from "@hr-agent/shared";
+import type { Candidate, SystemName } from "@hr-agent/shared";
+import { SYSTEMS } from "@hr-agent/shared";
 import { getRedis } from "../lib/redis";
-import { runOnboarding, amendOnboarding } from "../supervisor/run-cascade";
+import { runOnboarding, amendOnboarding, runSingleSystem } from "../supervisor/run-cascade";
 
 export const AGENT_TOOLS: ChatCompletionTool[] = [
   {
@@ -80,6 +81,49 @@ export const AGENT_TOOLS: ChatCompletionTool[] = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "run_single_step",
+      description:
+        "Re-run ONE specific system step for a candidate. Use this when HR asks for an individual action — e.g. 'request the ID card again', 'resend the welcome email', 'redo just the IT request', 'apply for parking', 'kick off training again'. The 12 systems are: hrms, documents, buddy, it, software, training, welcome, idcard, payroll, manager_notify, seating, parking. Pick the one that best matches HR's request.",
+      parameters: {
+        type: "object",
+        properties: {
+          name_or_id: { type: "string", description: "Candidate name or ID" },
+          system: {
+            type: "string",
+            enum: [
+              "hrms", "documents", "buddy", "it", "software", "training",
+              "welcome", "idcard", "payroll", "manager_notify", "seating", "parking",
+            ],
+            description: "Which system step to re-run",
+          },
+        },
+        required: ["name_or_id", "system"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "reassign_buddy",
+      description:
+        "Assign a SPECIFIC buddy to a candidate (overrides the agent's automatic pick). Use when HR names a particular person, e.g. 'make Rohan Desai her buddy' or 'reassign Karan's buddy to meera@acme.com'. The buddy must be in the candidate's team buddy pool.",
+      parameters: {
+        type: "object",
+        properties: {
+          name_or_id: { type: "string", description: "Candidate name or ID" },
+          buddy: {
+            type: "string",
+            description:
+              "Buddy email (preferred) or full name. Must match someone in the candidate's team buddy pool.",
+          },
+        },
+        required: ["name_or_id", "buddy"],
+      },
+    },
+  },
 ];
 
 export interface ToolResult {
@@ -99,8 +143,61 @@ export async function executeToolCall(name: string, argsJson: string): Promise<T
       return startOnboarding(args);
     case "amend_onboarding":
       return amendOnboardingTool(args.name_or_id, args.changes);
+    case "run_single_step":
+      return runSingleStep(args.name_or_id, args.system);
+    case "reassign_buddy":
+      return reassignBuddy(args.name_or_id, args.buddy);
     default:
       return { ok: false, message: `unknown tool: ${name}` };
+  }
+}
+
+const SYSTEM_LABEL: Record<string, string> = {
+  hrms: "HRMS record",
+  documents: "document checklist",
+  buddy: "buddy assignment",
+  it: "IT laptop request",
+  software: "software entitlements",
+  training: "training enrollment",
+  welcome: "welcome email",
+  idcard: "ID card",
+  payroll: "payroll setup",
+  manager_notify: "manager notification",
+  seating: "seating allocation",
+  parking: "parking allocation",
+};
+
+async function runSingleStep(nameOrId: string, system: string): Promise<ToolResult> {
+  if (!(SYSTEMS as readonly string[]).includes(system)) {
+    return { ok: false, message: `Unknown system "${system}". Valid: ${SYSTEMS.join(", ")}.` };
+  }
+  const c = await findCandidateByNameOrId(nameOrId);
+  if (!c?.id) return { ok: false, message: `No candidate found matching "${nameOrId}".` };
+  try {
+    const result = await runSingleSystem(c.id, system as SystemName);
+    return {
+      ok: true,
+      message: `Re-ran ${SYSTEM_LABEL[system] ?? system} for ${c.name}. Run id: ${result.run_id}.`,
+      data: { candidate_id: c.id, system, ...result },
+    };
+  } catch (err) {
+    return { ok: false, message: (err as Error).message };
+  }
+}
+
+async function reassignBuddy(nameOrId: string, buddy: string): Promise<ToolResult> {
+  const c = await findCandidateByNameOrId(nameOrId);
+  if (!c?.id) return { ok: false, message: `No candidate found matching "${nameOrId}".` };
+  const override = buddy.includes("@") ? { buddy_email: buddy } : { buddy_name: buddy };
+  try {
+    const result = await runSingleSystem(c.id, "buddy", override);
+    return {
+      ok: true,
+      message: `Re-assigned ${c.name}'s buddy to "${buddy}". Run id: ${result.run_id}.`,
+      data: { candidate_id: c.id, ...result },
+    };
+  } catch (err) {
+    return { ok: false, message: (err as Error).message };
   }
 }
 
