@@ -137,22 +137,23 @@ export function useVoiceAgent(opts: UseVoiceAgentOptions) {
         setConnected(true);
         setState("listening");
         try {
-          // 1. Lock the session voice EXPLICITLY before any response runs.
-          //    Azure Realtime can drift between voices per-turn if the voice
-          //    isn't re-asserted on the client. Pin to "shimmer" (female).
+          // Voice is set ONCE in the server-side session mint
+          // (orchestrator's /voice/session). We do NOT issue session.update
+          // here — Azure Realtime preview ignores voice changes after the
+          // first audio response is queued, and re-asserting it can cause
+          // visible voice drift between turns. Same reason we no longer
+          // specify response.voice on response.create — let the session
+          // default carry through.
+          //
+          // Just enable transcription + ask Sara to greet.
           dc.send(
             JSON.stringify({
               type: "session.update",
               session: {
-                voice: "shimmer",
-                modalities: ["audio", "text"],
                 input_audio_transcription: { model: "whisper-1" },
               },
             })
           );
-
-          // 2. Ask Sara to greet. Note: we do NOT specify response.voice here
-          //    so it inherits the session voice we just locked above.
           dc.send(
             JSON.stringify({
               type: "response.create",
@@ -166,7 +167,7 @@ export function useVoiceAgent(opts: UseVoiceAgentOptions) {
         } catch (e) {
           console.warn("[voice] failed to initialize session", e);
         }
-        // Idle timer starts on response.done (after Sara's greeting).
+        // Idle timer starts on output_audio_buffer.stopped after greeting.
       };
       dc.onclose = () => {
         clearIdleTimer();
@@ -232,11 +233,11 @@ export function useVoiceAgent(opts: UseVoiceAgentOptions) {
     const dc = dcRef.current;
     if (!dc || dc.readyState !== "open" || !text.trim()) return;
     try {
-      // Bypass conversation history — just generate a one-off response
-      // with explicit instructions. Inherits session voice (shimmer).
-      // Cancel any in-flight response so the cue isn't queued behind a
-      // long answer (cues are time-critical).
-      dc.send(JSON.stringify({ type: "response.cancel" }));
+      // One-off response that inherits the session voice. We deliberately
+      // do NOT send response.cancel beforehand — cancelling an in-flight
+      // response can cause the next response to drift to a different
+      // voice / cadence on Azure's preview Realtime API. Cues are short,
+      // and queuing them is acceptable.
       dc.send(
         JSON.stringify({
           type: "response.create",
