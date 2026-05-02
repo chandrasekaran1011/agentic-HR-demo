@@ -36,6 +36,28 @@ export function ChatSidebar({ userName, companyName }: ChatSidebarProps) {
     onTurn: (t) => setTurns((prev) => [...prev, t]),
   });
 
+  // Bridge: orchestrator publishes narration.cue events during a cascade.
+  // When voice is live, forward the cue text into Sara's Realtime session
+  // so she speaks it aloud — that's the spec's "voice-during-cascade" beat.
+  // When voice is off, drop them silently.
+  const voiceConnectedRef = useRef(voice.connected);
+  voiceConnectedRef.current = voice.connected;
+  const playNarrationRef = useRef(voice.playNarration);
+  playNarrationRef.current = voice.playNarration;
+  useEffect(() => {
+    const es = new EventSource("/api/events");
+    es.onmessage = (e) => {
+      try {
+        const ev = JSON.parse(e.data);
+        if (ev.type === "narration.cue" && voiceConnectedRef.current) {
+          const text = (ev.payload as { text?: string })?.text;
+          if (text) playNarrationRef.current(text);
+        }
+      } catch {}
+    };
+    return () => es.close();
+  }, []);
+
   // Restore history
   useEffect(() => {
     try {

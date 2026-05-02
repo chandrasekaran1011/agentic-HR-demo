@@ -222,6 +222,35 @@ export function useVoiceAgent(opts: UseVoiceAgentOptions) {
     setState("idle");
   }
 
+  /**
+   * Inject a narration cue into the active Realtime session — Sara will
+   * speak the text aloud verbatim. No-op if voice isn't connected.
+   * Called from the chat-sidebar SSE bridge when the orchestrator publishes
+   * narration.cue events during a cascade.
+   */
+  function playNarration(text: string): void {
+    const dc = dcRef.current;
+    if (!dc || dc.readyState !== "open" || !text.trim()) return;
+    try {
+      // Bypass conversation history — just generate a one-off response
+      // with explicit instructions. Inherits session voice (shimmer).
+      // Cancel any in-flight response so the cue isn't queued behind a
+      // long answer (cues are time-critical).
+      dc.send(JSON.stringify({ type: "response.cancel" }));
+      dc.send(
+        JSON.stringify({
+          type: "response.create",
+          response: {
+            modalities: ["audio", "text"],
+            instructions: `Say exactly the following sentence and nothing else: "${text.replace(/"/g, "'")}"`,
+          },
+        })
+      );
+    } catch (e) {
+      console.warn("[voice] failed to inject narration cue", e);
+    }
+  }
+
   async function handleRealtimeEvent(raw: string) {
     let event: { type: string; [k: string]: unknown };
     try {
@@ -336,5 +365,5 @@ export function useVoiceAgent(opts: UseVoiceAgentOptions) {
     }
   }
 
-  return { state, connected, start, stop };
+  return { state, connected, start, stop, playNarration };
 }
