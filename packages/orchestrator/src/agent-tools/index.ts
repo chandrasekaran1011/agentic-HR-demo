@@ -137,28 +137,123 @@ async function findCandidateByNameOrId(nameOrId: string): Promise<Record<string,
   return null;
 }
 
+// Human-readable label for each system tile, used in the lookup_status reply.
+const SYSTEM_LABELS: Record<string, string> = {
+  hrms: "HRMS",
+  documents: "Documents",
+  buddy: "Buddy",
+  it: "IT (laptop)",
+  software: "Software entitlements",
+  training: "Training enrollments",
+  welcome: "Welcome email",
+  idcard: "ID card",
+  payroll: "Payroll",
+  manager_notify: "Manager notification",
+  seating: "Seating",
+  parking: "Parking",
+};
+
+const ALL_SYSTEMS = [
+  "hrms", "documents", "buddy", "it", "software", "training",
+  "welcome", "idcard", "payroll", "manager_notify", "seating", "parking",
+];
+
+interface TileDetail {
+  system: string;
+  label: string;
+  status: string;
+  ticket_id?: string;
+  artifact_summary?: string;
+  details: Record<string, string>; // full ticket record
+}
+
+async function readTileWithTicket(candidateId: string, system: string): Promise<TileDetail> {
+  const r = getRedis();
+  const tile = await r.hgetall(`tile:${candidateId}:${system}`);
+  const detail: TileDetail = {
+    system,
+    label: SYSTEM_LABELS[system] ?? system,
+    status: tile.status ?? "pending",
+    ticket_id: tile.ticket_id,
+    artifact_summary: tile.artifact_summary,
+    details: {},
+  };
+  if (tile.ticket_id) {
+    const ticket = await r.hgetall(`ticket:${system}:${tile.ticket_id}`);
+    detail.details = ticket;
+  }
+  return detail;
+}
+
 async function lookupStatus(nameOrId: string): Promise<ToolResult> {
   const c = await findCandidateByNameOrId(nameOrId);
   if (!c) return { ok: false, message: `No candidate found matching "${nameOrId}".` };
 
-  const SYSTEMS = ["hrms", "documents", "buddy", "it", "software", "training", "welcome", "idcard", "payroll", "manager_notify", "seating", "parking"];
+  const tiles: TileDetail[] = [];
   let done = 0;
   const pending: string[] = [];
-  const r = getRedis();
-  for (const s of SYSTEMS) {
-    const status = await r.hget(`tile:${c.id}:${s}`, "status");
-    if (status === "done") done++;
-    else if (status !== "amending") pending.push(s);
+  const candidateId = c.id ?? "";
+  for (const s of ALL_SYSTEMS) {
+    const t = await readTileWithTicket(candidateId, s);
+    tiles.push(t);
+    if (t.status === "done") done++;
+    else if (t.status !== "amending") pending.push(t.label);
   }
 
-  // Include the work-relevant org-chart fields HR needs every time they ask.
-  // Salary band, personal phone, govt IDs etc. are intentionally NOT here.
-  const profileLine = `Role: ${c.role ?? "—"} · Team: ${c.team ?? "—"} · Manager: ${c.manager ?? "—"} · Joining: ${c.joining_date ?? "—"}${c.email ? ` · Work email: ${c.email}` : ""}`;
+  // ── Build a rich, agent-readable breakdown ──────────────────────
+  // The agent sees this entire blob and uses it to answer follow-ups
+  // ("where is she posted?", "what laptop?", "who's her buddy?", etc.).
+  const profileLine = `Role: ${c.role ?? "—"} · Team: ${c.team ?? "—"} · Manager: ${c.manager ?? "—"} · Joining: ${c.joining_date ?? "—"}${c.current_city ? ` · Currently in: ${c.current_city}` : ""}${c.email ? ` · Work email: ${c.email}` : ""}`;
   const statusLine = `${c.name} — ${c.status}, ${done}/12 actions complete${pending.length ? `; pending: ${pending.join(", ")}` : ""}.`;
+
+  const breakdownLines: string[] = [];
+  for (const t of tiles) {
+    const parts: string[] = [];
+    parts.push(`• ${t.label}: ${t.status}`);
+    if (t.ticket_id) parts.push(`(${t.ticket_id})`);
+    if (t.artifact_summary) parts.push(`— ${t.artifact_summary}`);
+    // Add a few system-specific high-value fields so the agent has them.
+    const d = t.details;
+    if (t.system === "it") {
+      const it: string[] = [];
+      if (d.laptop_model) it.push(d.laptop_model);
+      if (d.ram) it.push(d.ram);
+      if (d.cpu) it.push(d.cpu);
+      if (d.accessories) it.push(`accessories: ${d.accessories}`);
+      if (d.status) it.push(`shipping: ${d.status}`);
+      if (it.length) parts.push(`{${it.join(", ")}}`);
+    }
+    if (t.system === "software" && d.entitlements) parts.push(`{${d.entitlements}}`);
+    if (t.system === "training") {
+      const tr: string[] = [];
+      if (d.required) tr.push(`required: ${d.required}`);
+      if (d.recommended) tr.push(`recommended: ${d.recommended}`);
+      if (tr.length) parts.push(`{${tr.join("; ")}}`);
+    }
+    if (t.system === "buddy" && (d.buddy_name || d.buddy_email)) {
+      const bp: string[] = [];
+      if (d.buddy_name) bp.push(d.buddy_name);
+      if (d.buddy_email) bp.push(d.buddy_email);
+      parts.push(`{${bp.join(", ")}}`);
+    }
+    if (t.system === "seating") {
+      const seat: string[] = [];
+      if (d.floor) seat.push(`floor ${d.floor}`);
+      if (d.wing) seat.push(`${d.wing} wing`);
+      if (d.desk_code) seat.push(`desk ${d.desk_code}`);
+      if (seat.length) parts.push(`{${seat.join(", ")}}`);
+    }
+    if (t.system === "parking" && d.slot) parts.push(`{slot ${d.slot}${d.vehicle_type ? `, ${d.vehicle_type}` : ""}}`);
+    if (t.system === "payroll" && d.band) parts.push(`{band ${d.band}}`);
+    if (t.system === "manager_notify" && d.manager_email) parts.push(`{notified ${d.manager_email}}`);
+    if (t.system === "welcome" && d.recipients) parts.push(`{to ${d.recipients}}`);
+    if (t.system === "documents" && d.documents) parts.push(`{checklist: ${d.documents}}`);
+    breakdownLines.push(parts.join(" "));
+  }
 
   return {
     ok: true,
-    message: `${statusLine}\n${profileLine}`,
+    message: [statusLine, profileLine, "", ...breakdownLines].join("\n"),
     data: {
       id: c.id,
       name: c.name,
@@ -171,6 +266,7 @@ async function lookupStatus(nameOrId: string): Promise<ToolResult> {
       progress: done,
       status: c.status,
       pending_systems: pending,
+      tiles,
     },
   };
 }
