@@ -166,8 +166,10 @@ export function ChatSidebar({ userName, companyName }: ChatSidebarProps) {
     <aside className="w-[30%] min-w-[400px] max-w-[640px] bg-slate-900 border-r border-slate-800 flex flex-col h-screen">
       <div className="p-6 border-b border-slate-800 flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-semibold">{companyName}</h1>
-          <p className="text-xs text-slate-400">HR Onboarding Agent</p>
+          <a href="/" className="block hover:opacity-80">
+            <h1 className="text-lg font-semibold">{companyName}</h1>
+            <p className="text-xs text-slate-400">HR Onboarding Agent</p>
+          </a>
         </div>
         <button
           onClick={clearChat}
