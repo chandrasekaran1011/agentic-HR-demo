@@ -78,9 +78,15 @@ Click on Priya's row → land on her detail page. The audience sees:
 Click back to `/candidates`. Make sure you're on the candidates list page so the audience sees the new row appear.
 
 ### Say (chat OR voice — voice is more impressive)
-> "Onboard Karan Shah, Senior Frontend Engineer, AI Platform team, manager Sneha Roy, joining May 12th. He's relocating from Mumbai."
+> "Who needs onboarding?"
 
-### What happens (Sara may ask to confirm — say "yes go ahead")
+(Sara/the agent calls `list_pending_candidates` and reads back the queue from ATS.)
+
+> "Please onboard Karan Shah."
+
+(Notice: you don't say role, team, manager, or joining date — those came from ATS.)
+
+### What happens (Sara may ask to confirm — say "yes")
 - Tool card appears: `start_onboarding({...})`
 - Tool result returns immediately
 - A **new row** appears in the candidates table for Karan with status `in_progress`
@@ -175,10 +181,11 @@ She replies briefly — "My pleasure" or similar. The mic ring goes idle. End sc
 
 | Intent | Phrase |
 |---|---|
+| Show ATS queue | *"Who needs onboarding?"* / *"Show me the pending queue."* |
 | Status lookup | *"What's the status of Priya Sharma's onboarding?"* |
 | Status lookup (alt) | *"How is Vikram Iyer's onboarding going?"* |
-| Trigger cascade | *"Onboard Karan Shah, Senior Frontend Engineer, AI Platform team, manager Sneha Roy, joining May 12, current city Mumbai."* |
-| Trigger cascade (alt, simpler) | *"Onboard Anita Sharma — UX Researcher, Design team, joining May 19."* |
+| Trigger cascade (ATS-supplied) | *"Please onboard Karan Shah."* |
+| Trigger cascade (alt) | *"Start onboarding for Anita Sharma."* |
 | Amend | *"Actually, change Karan's team to AI Infrastructure."* |
 | Amend (alt) | *"Update Karan's joining date to May 15 instead."* |
 | Closing | *"Sara, thank you."* / *"That's all."* |
