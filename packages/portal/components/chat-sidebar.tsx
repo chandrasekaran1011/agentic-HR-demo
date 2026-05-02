@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { Mic, Send, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -209,10 +210,13 @@ export function ChatSidebar({ userName, companyName }: ChatSidebarProps) {
       />
       <div className="p-6 border-b border-border flex items-center justify-between gap-2">
         <div className="min-w-0">
-          <a href="/" className="block hover:opacity-80">
+          {/* Use Next <Link> here, NOT <a>. A plain anchor triggers a full
+              page reload which would unmount this component and kill the
+              voice WebRTC + chat history. */}
+          <Link href="/" className="block hover:opacity-80">
             <h1 className="text-lg font-semibold truncate">{companyName}</h1>
             <p className="text-xs text-muted-foreground">HR Onboarding Agent</p>
-          </a>
+          </Link>
         </div>
         <div className="flex items-center gap-1.5">
           <ThemeToggle />

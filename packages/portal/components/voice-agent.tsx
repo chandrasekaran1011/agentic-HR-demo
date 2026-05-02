@@ -260,7 +260,15 @@ export function useVoiceAgent(opts: UseVoiceAgentOptions) {
     }
     const type = event.type;
 
-    // Speech state + silence-timeout management
+    // ── Speech state + silence-timeout management ──────────────────
+    //
+    // CRITICAL: response.done fires when the model is done GENERATING the
+    // response, but Sara's audio is still PLAYING in the browser for
+    // several more seconds. If we start the 10s timer on response.done,
+    // the user gets dropped while Sara is mid-sentence.
+    //
+    // Real "Sara is done speaking" signal is output_audio_buffer.stopped.
+    // We listen on both buffer events to bracket Sara's speech.
     if (type === "input_audio_buffer.speech_started") {
       setState("listening");
       // User started talking — cancel the silence timer (mutual silence broken)
@@ -268,25 +276,35 @@ export function useVoiceAgent(opts: UseVoiceAgentOptions) {
     }
     if (type === "input_audio_buffer.speech_stopped") {
       // User stopped — Sara will respond next; do NOT start the idle timer
-      // here; we start it on response.done when the floor truly opens up.
+      // here; we start it on output_audio_buffer.stopped when she's done.
     }
-    if (type === "response.audio.delta") {
-      // Sara is speaking — pause the silence timer
+    if (type === "response.audio.delta" || type === "output_audio_buffer.started") {
+      // Sara's audio is being delivered to the browser — pause the silence timer
       setState("speaking");
       clearIdleTimer();
     }
-    if (type === "response.done") {
+    if (type === "output_audio_buffer.stopped") {
+      // Sara's audio buffer has fully drained in the browser — only NOW
+      // is the floor genuinely open for the user to talk.
       if (endingAfterResponseRef.current) {
-        // Sara just delivered a sign-off — let the audio finish playing,
-        // then end the session.
         endingAfterResponseRef.current = false;
         setState("listening");
-        setTimeout(() => stop(), 1500);
+        setTimeout(() => stop(), 600);
         return;
       }
-      // Sara finished a normal turn — start the 10s silence countdown
       setState("listening");
       startIdleTimer();
+    }
+    if (type === "response.done") {
+      // Don't manage the timer here — wait for output_audio_buffer.stopped
+      // (which fires AFTER audio finishes playing). response.done only
+      // means the model finished generating, not that audio is done.
+      // Kept the branch for endingAfterResponseRef as a safety net in
+      // case output_audio_buffer.stopped doesn't fire (e.g. text-only).
+      if (endingAfterResponseRef.current && state !== "speaking") {
+        endingAfterResponseRef.current = false;
+        setTimeout(() => stop(), 1500);
+      }
     }
 
     // User transcript
