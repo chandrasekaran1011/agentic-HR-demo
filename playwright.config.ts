@@ -23,6 +23,12 @@ export default defineConfig({
       url: "http://localhost:3001/health",
       reuseExistingServer: true,
       timeout: 60_000,
+      env: {
+        // Skip the real ACS send during e2e — keeps the cascade test fast
+        // and avoids burning real emails on every test run. Email-sent
+        // SSE events still fire so UI flow is verified end-to-end.
+        DISABLE_ACS_SEND: "true",
+      },
     },
     {
       command: "npm --workspace=portal run dev",

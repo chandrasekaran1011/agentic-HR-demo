@@ -45,6 +45,24 @@ export async function sendEmail(opts: SendEmailOpts): Promise<SendEmailResult> {
   const sender = normalizeSender(process.env.AZURE_COMM_SENDER_ADDRESS);
   const conn = process.env.AZURE_COMM_CONNECTION_STRING;
 
+  // Test/dev short-circuit. When DISABLE_ACS_SEND=true (set by playwright
+  // config during e2e), behave exactly like mock-mode: log + emit
+  // email.sent so the UI flow still works, but skip the real ACS call.
+  if (process.env.DISABLE_ACS_SEND === "true") {
+    console.log(`[email] ACS-disabled mode — skipping send to ${opts.to}`);
+    const id = `disabled-${Date.now()}`;
+    if (opts.candidateId) {
+      await publishAgentEvent({
+        type: "email.sent",
+        candidate_id: opts.candidateId,
+        payload: { to: opts.to, actual_to: opts.to, subject: opts.subject, message_id: id },
+        timestamp: new Date().toISOString(),
+        run_id: opts.runId,
+      });
+    }
+    return { messageId: id, delivered: true };
+  }
+
   // Demo safety: redirect ALL outbound mail to a single address if set.
   // Original recipient is preserved in subject + email-sent event so the UI
   // continues to show "where it would have gone" in the inbox toast.
