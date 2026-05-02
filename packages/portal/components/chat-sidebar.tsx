@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Mic, Send, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useVoiceAgent } from "./voice-agent";
+import { VoiceOverlay, type VoiceOverlayTurn } from "./voice-overlay";
 
 interface ChatSidebarProps {
   userName: string;
@@ -162,7 +163,27 @@ export function ChatSidebar({ userName, companyName }: ChatSidebarProps) {
     }
   }
 
+  // Voice-only turns for the cosmic overlay (no chat noise, no tool cards).
+  const voiceTurns = useMemo<VoiceOverlayTurn[]>(
+    () =>
+      turns
+        .filter((t) => t.source === "voice" && (t.role === "user" || t.role === "assistant") && t.text)
+        .map((t) => ({
+          id: t.id,
+          role: t.role as "user" | "assistant",
+          text: t.text!,
+        })),
+    [turns]
+  );
+
   return (
+    <>
+      <VoiceOverlay
+        open={voice.connected || voice.state === "connecting"}
+        state={voice.state}
+        turns={voiceTurns}
+        onEnd={voice.stop}
+      />
     <aside className="w-[30%] min-w-[400px] max-w-[640px] bg-slate-900 border-r border-slate-800 flex flex-col h-screen">
       <div className="p-6 border-b border-slate-800 flex items-center justify-between">
         <div>
@@ -262,6 +283,7 @@ export function ChatSidebar({ userName, companyName }: ChatSidebarProps) {
         </div>
       </div>
     </aside>
+    </>
   );
 }
 

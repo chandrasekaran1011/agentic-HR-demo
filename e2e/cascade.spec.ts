@@ -14,8 +14,9 @@ test.describe("Phase 2 cascade", () => {
     await page.getByLabel("Username").fill("hr");
     await page.getByLabel("Password").fill("acme2026");
     await page.getByRole("button", { name: "Sign in" }).click();
-    // First-time compile of /api/auth/login can be slow on a cold dev server.
-    await expect(page).toHaveURL(/\/candidates/, { timeout: 30_000 });
+    // First-time compile of /api/auth/login can be slow on a cold dev server,
+    // especially with next/font fetching Fraunces + Geist on first build.
+    await expect(page).toHaveURL(/\/candidates/, { timeout: 60_000 });
 
     // Click Onboard for Karan
     const karanRow = page.getByRole("row", { name: /Karan Shah/ });
