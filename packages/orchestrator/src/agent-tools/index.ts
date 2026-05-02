@@ -150,8 +150,29 @@ async function lookupStatus(nameOrId: string): Promise<ToolResult> {
     if (status === "done") done++;
     else if (status !== "amending") pending.push(s);
   }
-  const msg = `${c.name} is ${c.status}. ${done} of 12 actions complete.${pending.length ? " Pending: " + pending.join(", ") + "." : ""}`;
-  return { ok: true, message: msg, data: { id: c.id, progress: done, status: c.status } };
+
+  // Include the work-relevant org-chart fields HR needs every time they ask.
+  // Salary band, personal phone, govt IDs etc. are intentionally NOT here.
+  const profileLine = `Role: ${c.role ?? "—"} · Team: ${c.team ?? "—"} · Manager: ${c.manager ?? "—"} · Joining: ${c.joining_date ?? "—"}${c.email ? ` · Work email: ${c.email}` : ""}`;
+  const statusLine = `${c.name} — ${c.status}, ${done}/12 actions complete${pending.length ? `; pending: ${pending.join(", ")}` : ""}.`;
+
+  return {
+    ok: true,
+    message: `${statusLine}\n${profileLine}`,
+    data: {
+      id: c.id,
+      name: c.name,
+      role: c.role,
+      team: c.team,
+      manager: c.manager,
+      email: c.email,
+      joining_date: c.joining_date,
+      current_city: c.current_city,
+      progress: done,
+      status: c.status,
+      pending_systems: pending,
+    },
+  };
 }
 
 interface StartOnboardingArgs {
