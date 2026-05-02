@@ -1,0 +1,30 @@
+import {
+  Briefcase,
+  FileText,
+  UserCheck,
+  Laptop,
+  Boxes,
+  GraduationCap,
+  Mail,
+  IdCard,
+  CircleDollarSign,
+  Send,
+  Armchair,
+  Car,
+  type LucideIcon,
+} from "lucide-react";
+
+export const SYSTEM_ICONS: Record<string, LucideIcon> = {
+  briefcase: Briefcase,
+  "file-text": FileText,
+  "user-check": UserCheck,
+  laptop: Laptop,
+  boxes: Boxes,
+  "graduation-cap": GraduationCap,
+  mail: Mail,
+  "id-card": IdCard,
+  "circle-dollar": CircleDollarSign,
+  send: Send,
+  armchair: Armchair,
+  car: Car,
+};
