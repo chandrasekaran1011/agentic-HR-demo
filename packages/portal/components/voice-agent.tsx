@@ -28,10 +28,15 @@ export function useVoiceAgent(opts: UseVoiceAgentOptions) {
   const onTurnRef = useRef(opts.onTurn);
   onTurnRef.current = opts.onTurn;
 
-  // Auto-end after this much silence while listening for the user. Timer is
-  // paused while Sara is speaking and reset whenever the user starts talking.
+  // Auto-end after this much MUTUAL silence (neither user nor Sara talking).
+  // Timer is paused while Sara is speaking AND while the user is speaking;
+  // it only counts down during dead air after Sara finished a turn.
   const IDLE_TIMEOUT_MS = 10_000;
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Flag set when the next response.done should be the last one — used both
+  // for "user said thank you/bye" and "idle timeout, asked Sara to sign off".
+  const endingAfterResponseRef = useRef(false);
 
   function clearIdleTimer() {
     if (idleTimerRef.current) {
@@ -43,14 +48,40 @@ export function useVoiceAgent(opts: UseVoiceAgentOptions) {
   function startIdleTimer() {
     clearIdleTimer();
     idleTimerRef.current = setTimeout(() => {
-      onTurnRef.current({
-        id: `vidle-${Date.now()}`,
-        role: "assistant",
-        text: `Voice ended after ${IDLE_TIMEOUT_MS / 1000}s of silence. Click the mic to start again.`,
-        source: "voice",
-      });
-      stop();
+      // Don't end abruptly — ask Sara to say a brief sign-off, then end on
+      // her response.done. If the data channel isn't there, just stop.
+      if (!dcRef.current || dcRef.current.readyState !== "open") {
+        stop();
+        return;
+      }
+      endingAfterResponseRef.current = true;
+      try {
+        dcRef.current.send(
+          JSON.stringify({
+            type: "response.create",
+            response: {
+              modalities: ["audio", "text"],
+              instructions:
+                "The user has been silent for 10 seconds. Say exactly: 'Looks like that's all — call me back whenever you need anything else.' and nothing more.",
+            },
+          })
+        );
+      } catch {
+        stop();
+      }
     }, IDLE_TIMEOUT_MS);
+  }
+
+  // Match common goodbye / end phrases. Conservative — must be a clear sign-off.
+  function isGoodbyeUtterance(text: string): boolean {
+    const t = text.toLowerCase().trim();
+    if (!t) return false;
+    return (
+      /(^|\b)(thank\s*you|thanks|thank\s*u|thx|tysm)(\b|$)/.test(t) ||
+      /(^|\b)(good\s*bye|bye|byebye|good\s*night|cheers)(\b|$)/.test(t) ||
+      /(^|\b)(end\s*(the\s+)?(call|session|chat))(\b|$)/.test(t) ||
+      /(^|\b)(quit|exit|stop|hang\s*up|that'?s\s*(all|it)|we'?re\s*done|i'?m\s*done|that'?ll\s*be\s*all)(\b|$)/.test(t)
+    );
   }
 
   useEffect(() => {
@@ -188,8 +219,12 @@ export function useVoiceAgent(opts: UseVoiceAgentOptions) {
     // Speech state + silence-timeout management
     if (type === "input_audio_buffer.speech_started") {
       setState("listening");
-      // User started talking — cancel the silence timer
+      // User started talking — cancel the silence timer (mutual silence broken)
       clearIdleTimer();
+    }
+    if (type === "input_audio_buffer.speech_stopped") {
+      // User stopped — Sara will respond next; do NOT start the idle timer
+      // here; we start it on response.done when the floor truly opens up.
     }
     if (type === "response.audio.delta") {
       // Sara is speaking — pause the silence timer
@@ -197,7 +232,15 @@ export function useVoiceAgent(opts: UseVoiceAgentOptions) {
       clearIdleTimer();
     }
     if (type === "response.done") {
-      // Sara finished — start the 10s silence countdown
+      if (endingAfterResponseRef.current) {
+        // Sara just delivered a sign-off — let the audio finish playing,
+        // then end the session.
+        endingAfterResponseRef.current = false;
+        setState("listening");
+        setTimeout(() => stop(), 1500);
+        return;
+      }
+      // Sara finished a normal turn — start the 10s silence countdown
       setState("listening");
       startIdleTimer();
     }
@@ -212,6 +255,11 @@ export function useVoiceAgent(opts: UseVoiceAgentOptions) {
           text,
           source: "voice",
         });
+        // Detect verbal end commands: "thank you", "bye", "quit", "stop", etc.
+        // Sara will still respond once (her response.done triggers stop()).
+        if (isGoodbyeUtterance(text)) {
+          endingAfterResponseRef.current = true;
+        }
       }
     }
 
