@@ -136,8 +136,23 @@ export function useVoiceAgent(opts: UseVoiceAgentOptions) {
       dc.onopen = () => {
         setConnected(true);
         setState("listening");
-        // Ask Sara to greet first.
         try {
+          // 1. Lock the session voice EXPLICITLY before any response runs.
+          //    Azure Realtime can drift between voices per-turn if the voice
+          //    isn't re-asserted on the client. Pin to "shimmer" (female).
+          dc.send(
+            JSON.stringify({
+              type: "session.update",
+              session: {
+                voice: "shimmer",
+                modalities: ["audio", "text"],
+                input_audio_transcription: { model: "whisper-1" },
+              },
+            })
+          );
+
+          // 2. Ask Sara to greet. Note: we do NOT specify response.voice here
+          //    so it inherits the session voice we just locked above.
           dc.send(
             JSON.stringify({
               type: "response.create",
@@ -149,7 +164,7 @@ export function useVoiceAgent(opts: UseVoiceAgentOptions) {
             })
           );
         } catch (e) {
-          console.warn("[voice] failed to send greeting", e);
+          console.warn("[voice] failed to initialize session", e);
         }
         // Idle timer starts on response.done (after Sara's greeting).
       };
