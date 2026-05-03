@@ -7,3 +7,6 @@ dist/
 .DS_Store
 playwright-report/
 test-results/
+
+# Local-only operator notes
+OPS-CHEATSHEET.md
