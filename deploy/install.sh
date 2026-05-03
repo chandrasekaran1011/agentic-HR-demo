@@ -43,8 +43,21 @@ if [[ -z "${RUN_USER}" || "${RUN_USER}" == "root" ]]; then
   RUN_USER="$(whoami)"
 fi
 
+# Privileged-command wrappers — work whether already root or not.
+# Plain `$SUDO` doesn't, because empty-expansion makes bash try to execute
+# the next token (e.g. `DEBIAN_FRONTEND=…`, `-E`, `-u`) as a command.
 SUDO=""
-if [[ $(id -u) -ne 0 ]]; then SUDO="sudo"; fi
+SUDO_E=()
+if [[ $(id -u) -ne 0 ]]; then
+  SUDO="sudo"
+  SUDO_E=(sudo -E)
+fi
+# Used for "sudo -u <user>" — sudo works even when invoked as root, so we
+# can always shell out to `sudo -u` regardless of effective UID.
+as_user() { sudo -u "$1" -- "${@:2}"; }
+
+# Set once, used by every apt-get install
+export DEBIAN_FRONTEND=noninteractive
 
 c_blue() { printf "\n\033[1;36m▶ %s\033[0m\n" "$*"; }
 c_warn() { printf "\033[1;33m! %s\033[0m\n" "$*"; }
@@ -57,8 +70,8 @@ fail()   { printf "\033[1;31m✗ %s\033[0m\n" "$*" >&2; exit 1; }
 # --- 1. base packages ------------------------------------------------------
 c_blue "apt update + base packages"
 $SUDO apt-get update -y
-$SUDO DEBIAN_FRONTEND=noninteractive apt-get install -y \
-  ca-certificates curl gnupg git nginx ufw jq
+$SUDO apt-get install -y \
+  ca-certificates curl gnupg git nginx ufw jq sudo
 
 # --- 2. Docker -------------------------------------------------------------
 if ! command -v docker >/dev/null; then
@@ -82,7 +95,7 @@ fi
 # --- 3. Node.js 20 (host-side, for seeding) -------------------------------
 if ! command -v node >/dev/null || [[ "$(node --version | cut -dv -f2 | cut -d. -f1)" -lt 18 ]]; then
   c_blue "Installing Node.js 20 (NodeSource)"
-  curl -fsSL https://deb.nodesource.com/setup_20.x | $SUDO -E bash -
+  curl -fsSL https://deb.nodesource.com/setup_20.x | "${SUDO_E[@]}" bash -
   $SUDO apt-get install -y nodejs
 else
   c_ok "Node already installed: $(node --version)"
@@ -143,11 +156,11 @@ done
 # --- 7. Seed Redis ---------------------------------------------------------
 c_blue "Installing repo deps (needed for seed script)"
 if [[ ! -d node_modules ]]; then
-  $SUDO -u "$RUN_USER" npm install --no-audit --no-fund
+  as_user "$RUN_USER" npm install --no-audit --no-fund
 fi
 
 c_blue "Seeding Redis with master data + 8 demo candidates"
-REDIS_URL="${REDIS_URL:-redis://localhost:6379}" $SUDO -u "$RUN_USER" \
+sudo -u "$RUN_USER" env "REDIS_URL=${REDIS_URL:-redis://localhost:6379}" \
   npx tsx scripts/seed.ts \
   || c_warn "seed step failed — re-run later with: REDIS_URL=redis://localhost:6379 npx tsx scripts/seed.ts"
 
