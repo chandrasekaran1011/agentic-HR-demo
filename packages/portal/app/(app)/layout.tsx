@@ -1,4 +1,5 @@
 import { ChatSidebar } from "@/components/chat-sidebar";
+import { HomeLink } from "@/components/home-link";
 import { getCompany } from "@/lib/company";
 import { getCurrentUser } from "@/lib/auth";
 
@@ -20,7 +21,10 @@ export default async function AuthedAppLayout({
         userName={user?.name ?? "Guest"}
         companyName={company.name}
       />
-      <main className="flex-1 overflow-y-auto">{children}</main>
+      <main className="flex-1 overflow-y-auto relative">
+        <HomeLink />
+        {children}
+      </main>
     </div>
   );
 }
