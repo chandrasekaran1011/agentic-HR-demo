@@ -15,7 +15,7 @@ export default async function RoleSoftwareMatrixPage() {
   return (
     <AppShell>
       <div className="p-8 space-y-6">
-        <Link href="/admin/master-data" className="text-sm text-slate-400 hover:text-slate-200">
+        <Link href="/admin/master-data" className="text-sm text-muted-foreground hover:text-foreground">
           ◀ Back to master data
         </Link>
         <div>

@@ -45,7 +45,7 @@ export default function Home() {
     <AppShell>
       <div className="p-8 space-y-10">
         <div>
-          <h1 className="text-3xl font-semibold">HR Onboarding Portal</h1>
+          <h1 className="text-3xl font-semibold">HR.AI</h1>
           <p className="text-muted-foreground mt-1">
             Talk to the agent in the chat sidebar, or jump straight to any section below.
           </p>
@@ -119,14 +119,14 @@ function Card({
       href={href}
       className={`group rounded-lg border p-4 hover:border-input hover:bg-card transition-colors block ${
         featured
-          ? "border-amber-500/40 bg-amber-500/5"
+          ? "border-amber-400 bg-amber-50 dark:border-amber-500/40 dark:bg-amber-500/5"
           : "border-border bg-card/50"
       }`}
     >
       <div className="flex items-start gap-3">
         <Icon
           className={`size-5 mt-0.5 shrink-0 ${
-            featured ? "text-amber-400" : "text-muted-foreground group-hover:text-foreground"
+            featured ? "text-amber-700 dark:text-amber-400" : "text-muted-foreground group-hover:text-foreground"
           }`}
         />
         <div className="min-w-0">

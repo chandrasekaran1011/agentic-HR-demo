@@ -64,9 +64,9 @@ export function EmailOverrideForm({ initial }: Props) {
           <span className="font-mono ml-1">[demo→original@…]</span>.
         </p>
       </div>
-      {error && <p className="text-sm text-rose-400">{error}</p>}
+      {error && <p className="text-sm text-rose-700 dark:text-rose-400">{error}</p>}
       {savedAt && !error && (
-        <p className="text-sm text-emerald-400">Saved at {savedAt}.</p>
+        <p className="text-sm text-emerald-700 dark:text-emerald-400">Saved at {savedAt}.</p>
       )}
       <div className="flex gap-2">
         <Button type="submit" disabled={busy}>

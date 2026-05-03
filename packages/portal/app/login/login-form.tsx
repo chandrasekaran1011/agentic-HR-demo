@@ -62,7 +62,7 @@ export function LoginForm() {
           required
         />
       </div>
-      {error && <p className="text-sm text-rose-400">{error}</p>}
+      {error && <p className="text-sm text-rose-700 dark:text-rose-400">{error}</p>}
       <Button type="submit" disabled={loading}>
         {loading ? "Signing in..." : "Sign in"}
       </Button>

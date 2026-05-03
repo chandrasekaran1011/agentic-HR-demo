@@ -23,13 +23,15 @@ export default function MasterDataIndex() {
               key={s.href}
               href={s.href}
               className={`rounded-lg border p-5 hover:bg-card/70 transition-colors ${
-                s.featured ? "border-amber-500/40 bg-amber-500/5" : "border-border bg-card"
+                s.featured
+                  ? "border-amber-400 bg-amber-50 dark:border-amber-500/40 dark:bg-amber-500/5"
+                  : "border-border bg-card"
               }`}
             >
               <div className="flex items-center gap-2">
                 <h2 className="text-lg font-medium">{s.title}</h2>
                 {s.featured && (
-                  <span className="text-xs bg-amber-500/20 text-amber-300 rounded px-2 py-0.5">★ key screen</span>
+                  <span className="text-xs bg-amber-200 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300 rounded px-2 py-0.5">★ key screen</span>
                 )}
               </div>
               <p className="text-sm text-muted-foreground mt-1">{s.desc}</p>

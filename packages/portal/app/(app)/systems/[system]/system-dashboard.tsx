@@ -98,9 +98,9 @@ export function SystemDashboard({ config, tickets }: Props) {
           >
             <p className="text-[11px] uppercase tracking-wider text-muted-foreground">{s.label}</p>
             <p className={`text-2xl font-semibold mt-1 tabular-nums ${
-              s.key === "done" ? "text-emerald-400" :
-              s.key === "in_progress" ? "text-amber-400" :
-              s.key === "errors" ? "text-rose-400" :
+              s.key === "done" ? "text-emerald-700 dark:text-emerald-400" :
+              s.key === "in_progress" ? "text-amber-700 dark:text-amber-400" :
+              s.key === "errors" ? "text-rose-700 dark:text-rose-400" :
               "text-foreground"
             }`}>
               {counts[s.key as keyof typeof counts]}
@@ -262,7 +262,7 @@ export function SystemDashboard({ config, tickets }: Props) {
                   </p>
                   <div className="space-y-3">
                     <div className="flex gap-3">
-                      <div className="size-7 rounded-full bg-emerald-500/20 border border-emerald-500/40 grid place-items-center text-emerald-300 text-xs font-medium shrink-0">
+                      <div className="size-7 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 dark:bg-emerald-500/20 dark:border-emerald-500/40 dark:text-emerald-300 grid place-items-center text-xs font-medium shrink-0">
                         AG
                       </div>
                       <div>
@@ -272,7 +272,7 @@ export function SystemDashboard({ config, tickets }: Props) {
                     </div>
                     {active.status === "done" && (
                       <div className="flex gap-3">
-                        <div className="size-7 rounded-full bg-blue-500/20 border border-blue-500/40 grid place-items-center text-blue-300 text-xs font-medium shrink-0">
+                        <div className="size-7 rounded-full bg-blue-100 border border-blue-300 text-blue-800 dark:bg-blue-500/20 dark:border-blue-500/40 dark:text-blue-300 grid place-items-center text-xs font-medium shrink-0">
                           ✓
                         </div>
                         <div>
@@ -309,9 +309,9 @@ function FilterChip({
 }) {
   const toneClasses =
     tone === "amber"
-      ? "data-[active=true]:bg-amber-500/20 data-[active=true]:border-amber-500/40 data-[active=true]:text-amber-200"
+      ? "data-[active=true]:bg-amber-100 data-[active=true]:border-amber-400 data-[active=true]:text-amber-800 dark:data-[active=true]:bg-amber-500/20 dark:data-[active=true]:border-amber-500/40 dark:data-[active=true]:text-amber-200"
       : tone === "emerald"
-      ? "data-[active=true]:bg-emerald-500/20 data-[active=true]:border-emerald-500/40 data-[active=true]:text-emerald-200"
+      ? "data-[active=true]:bg-emerald-100 data-[active=true]:border-emerald-400 data-[active=true]:text-emerald-800 dark:data-[active=true]:bg-emerald-500/20 dark:data-[active=true]:border-emerald-500/40 dark:data-[active=true]:text-emerald-200"
       : "data-[active=true]:bg-muted data-[active=true]:text-foreground";
   return (
     <button
@@ -377,17 +377,24 @@ function Cell({ column, ticket }: { column: ColumnDef; ticket: Ticket }) {
 }
 
 function StatusPill({ status }: { status: string }) {
+  const emerald =
+    "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/30";
+  const amber =
+    "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/30";
+  const rose =
+    "bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-500/15 dark:text-rose-300 dark:border-rose-500/30";
+  const neutral = "bg-muted/40 text-foreground border-border";
   const config: Record<string, { label: string; cls: string }> = {
-    done: { label: "Resolved", cls: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" },
-    in_progress: { label: "In Progress", cls: "bg-amber-500/15 text-amber-300 border-amber-500/30" },
-    amending: { label: "Amending", cls: "bg-amber-500/15 text-amber-300 border-amber-500/30" },
-    pending: { label: "Pending", cls: "bg-muted/40 text-foreground border-border" },
-    error: { label: "Error", cls: "bg-rose-500/15 text-rose-300 border-rose-500/30" },
-    failed: { label: "Failed", cls: "bg-rose-500/15 text-rose-300 border-rose-500/30" },
-    delivered: { label: "Delivered", cls: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" },
-    issued: { label: "Issued", cls: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" },
+    done: { label: "Resolved", cls: emerald },
+    in_progress: { label: "In Progress", cls: amber },
+    amending: { label: "Amending", cls: amber },
+    pending: { label: "Pending", cls: neutral },
+    error: { label: "Error", cls: rose },
+    failed: { label: "Failed", cls: rose },
+    delivered: { label: "Delivered", cls: emerald },
+    issued: { label: "Issued", cls: emerald },
   };
-  const c = config[status] ?? { label: status || "—", cls: "bg-muted/40 text-foreground border-border" };
+  const c = config[status] ?? { label: status || "—", cls: neutral };
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${c.cls}`}

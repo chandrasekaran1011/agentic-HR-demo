@@ -17,7 +17,7 @@ export default async function TrainingMatrixPage() {
   return (
     <AppShell>
       <div className="p-8 space-y-6">
-        <Link href="/admin/master-data" className="text-sm text-slate-400 hover:text-slate-200">
+        <Link href="/admin/master-data" className="text-sm text-muted-foreground hover:text-foreground">
           ◀ Back to master data
         </Link>
         <h1 className="text-2xl font-semibold">Training matrix</h1>
@@ -36,8 +36,8 @@ export default async function TrainingMatrixPage() {
             {entries.map((e) => (
               <TableRow key={e.role_family}>
                 <TableCell className="font-medium capitalize">{e.role_family}</TableCell>
-                <TableCell className="text-emerald-300">{e.required.join(", ")}</TableCell>
-                <TableCell className="text-slate-400">{e.recommended.join(", ")}</TableCell>
+                <TableCell className="text-emerald-700 dark:text-emerald-300">{e.required.join(", ")}</TableCell>
+                <TableCell className="text-muted-foreground">{e.recommended.join(", ")}</TableCell>
               </TableRow>
             ))}
           </TableBody>

@@ -215,7 +215,7 @@ export function ChatSidebar({ userName, companyName }: ChatSidebarProps) {
               voice WebRTC + chat history. */}
           <Link href="/" className="block hover:opacity-80">
             <h1 className="text-lg font-semibold truncate">{companyName}</h1>
-            <p className="text-xs text-muted-foreground">HR Onboarding Agent</p>
+            <p className="text-xs text-muted-foreground">HR.AI</p>
           </Link>
         </div>
         <div className="flex items-center gap-1.5">

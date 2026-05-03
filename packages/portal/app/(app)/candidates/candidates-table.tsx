@@ -17,9 +17,12 @@ import { Button } from "@/components/ui/button";
 import { useSseEvents, type AgentEvent } from "@/components/use-sse-events";
 
 const statusVariant: Record<Candidate["status"], string> = {
-  pending: "bg-muted text-foreground",
-  in_progress: "bg-amber-600/30 text-amber-200 border-amber-600/40",
-  complete: "bg-emerald-600/30 text-emerald-200 border-emerald-600/40",
+  pending:
+    "bg-slate-200 text-slate-700 border-slate-300 dark:bg-slate-700 dark:text-slate-200 dark:border-slate-600",
+  in_progress:
+    "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-600/30 dark:text-amber-200 dark:border-amber-600/40",
+  complete:
+    "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-600/30 dark:text-emerald-200 dark:border-emerald-600/40",
 };
 
 export function CandidatesTable({ initialData }: { initialData: Candidate[] }) {

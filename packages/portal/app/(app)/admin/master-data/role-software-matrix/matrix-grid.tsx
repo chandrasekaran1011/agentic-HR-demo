@@ -79,7 +79,7 @@ export function MatrixGrid({ roles, software, initialMatrix }: Props) {
                         onClick={() => toggle(role.id, s.id)}
                         className={`w-full h-full py-3 transition-colors ${
                           isOn
-                            ? "bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300"
+                            ? "bg-emerald-100 hover:bg-emerald-200 text-emerald-700 dark:bg-emerald-500/15 dark:hover:bg-emerald-500/25 dark:text-emerald-300"
                             : "hover:bg-muted/40 text-muted-foreground/40"
                         }`}
                         aria-pressed={isOn}

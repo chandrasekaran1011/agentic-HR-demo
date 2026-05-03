@@ -72,7 +72,7 @@ export function Stopwatch({ candidateId }: { candidateId: string }) {
       <motion.div
         animate={{ scale: state.finishedAt != null ? [1, 1.08, 1] : 1 }}
         transition={{ duration: 0.4 }}
-        className="text-sm text-emerald-400 font-medium"
+        className="text-sm text-emerald-700 dark:text-emerald-400 font-medium"
       >
         💰 {formatHMS(savedSec)} saved
       </motion.div>

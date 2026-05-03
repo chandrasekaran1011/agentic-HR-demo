@@ -22,7 +22,7 @@ export default function LoginPage() {
             />
           )}
           <h1 className="text-xl font-semibold">{company.name}</h1>
-          <p className="text-sm text-muted-foreground mt-1">HR Onboarding Portal</p>
+          <p className="text-sm text-muted-foreground mt-1">HR.AI</p>
         </div>
         <LoginForm />
         <p className="text-xs text-muted-foreground text-center mt-8">Demo environment</p>

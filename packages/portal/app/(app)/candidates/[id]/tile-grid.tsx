@@ -125,11 +125,11 @@ export function TileGrid({ candidateId, candidateTeam, initialTiles }: Props) {
             <p
               className={`text-xs mt-1 capitalize ${
                 t.status === "done"
-                  ? "text-emerald-400"
+                  ? "text-emerald-700 dark:text-emerald-400"
                   : t.status === "in_progress" || t.status === "amending"
-                  ? "text-amber-400"
+                  ? "text-amber-700 dark:text-amber-400"
                   : t.status === "error"
-                  ? "text-rose-400"
+                  ? "text-rose-700 dark:text-rose-400"
                   : "text-muted-foreground"
               }`}
             >

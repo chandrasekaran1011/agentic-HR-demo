@@ -26,7 +26,7 @@ export default async function CandidateDetailPage({
   return (
     <AppShell>
       <div className="p-8 space-y-8">
-        <Link href="/candidates" className="text-sm text-slate-400 hover:text-slate-200">
+        <Link href="/candidates" className="text-sm text-muted-foreground hover:text-foreground">
           ◀ Back to candidates
         </Link>
         <div className="flex items-start justify-between">

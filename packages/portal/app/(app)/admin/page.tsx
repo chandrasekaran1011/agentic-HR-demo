@@ -42,13 +42,13 @@ export default async function AdminPage() {
             />
           </Card>
           <Card label="In progress">
-            <BigNumber value={m.in_progress} className="text-5xl font-semibold mt-2 tabular-nums text-amber-400" />
+            <BigNumber value={m.in_progress} className="text-5xl font-semibold mt-2 tabular-nums text-amber-700 dark:text-amber-400" />
           </Card>
           <Card label="Time saved">
             <BigNumber
               value={m.total_time_saved_seconds}
               format="hm"
-              className="text-5xl font-semibold mt-2 tabular-nums text-emerald-400"
+              className="text-5xl font-semibold mt-2 tabular-nums text-emerald-700 dark:text-emerald-400"
             />
           </Card>
         </div>

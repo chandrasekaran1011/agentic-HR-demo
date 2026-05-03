@@ -270,7 +270,7 @@ export function TileActionDrawer({ candidateId, candidateTeam, tile, onClose }: 
                             }
                             className={`w-full text-left rounded-md border px-3 py-2 transition-colors ${
                               isCurrent
-                                ? "border-emerald-500/40 bg-emerald-500/5"
+                                ? "border-emerald-400 bg-emerald-50 dark:border-emerald-500/40 dark:bg-emerald-500/5"
                                 : "border-border hover:bg-muted/40"
                             }`}
                           >
@@ -285,7 +285,7 @@ export function TileActionDrawer({ candidateId, candidateTeam, tile, onClose }: 
                                 </div>
                               </div>
                               {isCurrent && (
-                                <span className="text-[10px] uppercase tracking-wider text-emerald-500">
+                                <span className="text-[10px] uppercase tracking-wider text-emerald-700 dark:text-emerald-500">
                                   current
                                 </span>
                               )}
@@ -366,12 +366,18 @@ function ActionButton({
 }
 
 function StatusPill({ status }: { status: string }) {
+  const emerald =
+    "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/30";
+  const amber =
+    "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/30";
+  const rose =
+    "bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-500/15 dark:text-rose-300 dark:border-rose-500/30";
   const config: Record<string, { label: string; cls: string }> = {
-    done: { label: "Resolved", cls: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border-emerald-500/30" },
-    in_progress: { label: "In Progress", cls: "bg-amber-500/15 text-amber-600 dark:text-amber-300 border-amber-500/30" },
-    amending: { label: "Amending", cls: "bg-amber-500/15 text-amber-600 dark:text-amber-300 border-amber-500/30" },
+    done: { label: "Resolved", cls: emerald },
+    in_progress: { label: "In Progress", cls: amber },
+    amending: { label: "Amending", cls: amber },
     pending: { label: "Pending", cls: "bg-muted text-muted-foreground border-border" },
-    error: { label: "Error", cls: "bg-rose-500/15 text-rose-600 dark:text-rose-300 border-rose-500/30" },
+    error: { label: "Error", cls: rose },
   };
   const c = config[status] ?? config.pending!;
   return (
