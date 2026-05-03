@@ -12,20 +12,20 @@ describe("seed candidates", () => {
     await closeRedis();
   });
 
-  it("loads four candidates", async () => {
+  it("loads eight candidates", async () => {
     const all = await listCandidates();
-    expect(all.length).toBe(4);
+    expect(all.length).toBe(8);
   });
 
-  it("loads priya with progress 8", async () => {
-    const priya = await getCandidate("priya-sharma");
-    expect(priya?.name).toBe("Priya Sharma");
-    expect(priya?.progress).toBe(8);
-    expect(priya?.status).toBe("in_progress");
+  it("loads jessica with progress 8", async () => {
+    const jessica = await getCandidate("jessica-cohen");
+    expect(jessica?.name).toBe("Jessica Cohen");
+    expect(jessica?.progress).toBe(8);
+    expect(jessica?.status).toBe("in_progress");
   });
 
-  it("populates tiles for priya", async () => {
-    const tiles = await getTiles("priya-sharma");
+  it("populates tiles for jessica", async () => {
+    const tiles = await getTiles("jessica-cohen");
     expect(tiles.length).toBe(12);
     const hrms = tiles.find((t) => t.system === "hrms");
     expect(hrms?.status).toBe("done");

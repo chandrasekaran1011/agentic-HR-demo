@@ -18,14 +18,14 @@ test.describe("Phase 2 cascade", () => {
     // especially with next/font fetching Fraunces + Geist on first build.
     await expect(page).toHaveURL(/\/candidates/, { timeout: 60_000 });
 
-    // Click Onboard for Karan
-    const karanRow = page.getByRole("row", { name: /Karan Shah/ });
-    await expect(karanRow).toBeVisible();
-    await karanRow.getByRole("button", { name: /Onboard manually/ }).click();
+    // Click Onboard for Tyler
+    const tylerRow = page.getByRole("row", { name: /Tyler Brooks/ });
+    await expect(tylerRow).toBeVisible();
+    await tylerRow.getByRole("button", { name: /Onboard manually/ }).click();
 
-    // Should land on Karan's detail page
-    await expect(page).toHaveURL(/\/candidates\/karan-shah/);
-    await expect(page.getByRole("heading", { name: "Karan Shah" })).toBeVisible();
+    // Should land on Tyler's detail page
+    await expect(page).toHaveURL(/\/candidates\/tyler-brooks/);
+    await expect(page.getByRole("heading", { name: "Tyler Brooks" })).toBeVisible();
 
     // Wait for all 12 "done" labels (one per tile). Real ACS/Tavily calls
     // add latency, so allow up to 90s.

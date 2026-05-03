@@ -14,12 +14,12 @@ test.describe("Phase 1 smoke", () => {
 
     await expect(page).toHaveURL(/\/candidates/);
     await expect(page.getByRole("heading", { name: "Candidates" })).toBeVisible();
-    await expect(page.getByText("Priya Sharma")).toBeVisible();
-    await expect(page.getByText("Aanya Patel")).toBeVisible();
+    await expect(page.getByText("Jessica Cohen")).toBeVisible();
+    await expect(page.getByText("Emma Rodriguez")).toBeVisible();
 
-    await page.getByRole("link", { name: "Priya Sharma" }).click();
-    await expect(page).toHaveURL(/\/candidates\/priya-sharma/);
-    await expect(page.getByRole("heading", { name: "Priya Sharma" })).toBeVisible();
+    await page.getByRole("link", { name: "Jessica Cohen" }).click();
+    await expect(page).toHaveURL(/\/candidates\/jessica-cohen/);
+    await expect(page.getByRole("heading", { name: "Jessica Cohen" })).toBeVisible();
     await expect(page.getByText("HRMS")).toBeVisible();
 
     await page.goto("/admin");

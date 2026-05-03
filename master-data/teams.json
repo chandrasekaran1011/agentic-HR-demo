@@ -4,12 +4,12 @@
     "name": "AI Platform",
     "floor": 3,
     "wing": "east",
-    "manager": "Sneha Roy",
-    "manager_email": "sneha.roy@acme.com",
+    "manager": "Rachel Thompson",
+    "manager_email": "rachel.thompson@acme.com",
     "buddy_pool": [
-      { "name": "Rohan Desai", "email": "rohan.desai@acme.com", "role_family": "engineering", "tenure_years": 3 },
-      { "name": "Ankit Verma", "email": "ankit.verma@acme.com", "role_family": "engineering", "tenure_years": 2 },
-      { "name": "Divya Iyer", "email": "divya.iyer@acme.com", "role_family": "engineering", "tenure_years": 4 }
+      { "name": "Aisha Khan", "email": "aisha.khan@acme.com", "role_family": "engineering", "tenure_years": 2 },
+      { "name": "Daniel Garcia", "email": "daniel.garcia@acme.com", "role_family": "engineering", "tenure_years": 4 },
+      { "name": "Ryan Murphy", "email": "ryan.murphy@acme.com", "role_family": "engineering", "tenure_years": 3 }
     ],
     "parking_eligibility": "all"
   },
@@ -18,11 +18,12 @@
     "name": "AI Infrastructure",
     "floor": 5,
     "wing": "north",
-    "manager": "Karthik Rao",
-    "manager_email": "karthik.rao@acme.com",
+    "manager": "Anjali Iyer",
+    "manager_email": "anjali.iyer@acme.com",
     "buddy_pool": [
-      { "name": "Meera Krishnan", "email": "meera.krishnan@acme.com", "role_family": "infrastructure", "tenure_years": 4 },
-      { "name": "Naveen Kumar", "email": "naveen.kumar@acme.com", "role_family": "infrastructure", "tenure_years": 3 }
+      { "name": "Marcus Johnson", "email": "marcus.johnson@acme.com", "role_family": "infrastructure", "tenure_years": 4 },
+      { "name": "Priya Patel", "email": "priya.patel@acme.com", "role_family": "infrastructure", "tenure_years": 3 },
+      { "name": "James Sullivan", "email": "james.sullivan@acme.com", "role_family": "infrastructure", "tenure_years": 5 }
     ],
     "parking_eligibility": "all"
   },
@@ -31,11 +32,11 @@
     "name": "Data",
     "floor": 4,
     "wing": "west",
-    "manager": "Anjali Mehta",
-    "manager_email": "anjali.mehta@acme.com",
+    "manager": "Daniel Park",
+    "manager_email": "daniel.park@acme.com",
     "buddy_pool": [
-      { "name": "Vikram Iyer", "email": "vikram.iyer@acme.com", "role_family": "data", "tenure_years": 2 },
-      { "name": "Sandeep Agarwal", "email": "sandeep.agarwal@acme.com", "role_family": "data", "tenure_years": 5 }
+      { "name": "Aaron Goldberg", "email": "aaron.goldberg@acme.com", "role_family": "data", "tenure_years": 5 },
+      { "name": "Sandra Mitchell", "email": "sandra.mitchell@acme.com", "role_family": "data", "tenure_years": 3 }
     ],
     "parking_eligibility": "senior_only"
   },
@@ -44,11 +45,11 @@
     "name": "Design",
     "floor": 2,
     "wing": "east",
-    "manager": "Priya Nambiar",
-    "manager_email": "priya.nambiar@acme.com",
+    "manager": "Sophia Rivera",
+    "manager_email": "sophia.rivera@acme.com",
     "buddy_pool": [
-      { "name": "Aanya Patel", "email": "aanya.patel@acme.com", "role_family": "design", "tenure_years": 1 },
-      { "name": "Ishaan Gupta", "email": "ishaan.gupta@acme.com", "role_family": "design", "tenure_years": 3 }
+      { "name": "Emma Rodriguez", "email": "emma.rodriguez@acme.com", "role_family": "design", "tenure_years": 1 },
+      { "name": "Olivia Bennett", "email": "olivia.bennett@acme.com", "role_family": "design", "tenure_years": 3 }
     ],
     "parking_eligibility": "all"
   },
@@ -57,10 +58,10 @@
     "name": "Growth",
     "floor": 2,
     "wing": "west",
-    "manager": "Rajeev Menon",
-    "manager_email": "rajeev.menon@acme.com",
+    "manager": "Patrick O'Brien",
+    "manager_email": "patrick.obrien@acme.com",
     "buddy_pool": [
-      { "name": "Tanvi Joshi", "email": "tanvi.joshi@acme.com", "role_family": "product", "tenure_years": 2 }
+      { "name": "Hannah Lee", "email": "hannah.lee@acme.com", "role_family": "product", "tenure_years": 2 }
     ],
     "parking_eligibility": "all"
   },
@@ -69,10 +70,10 @@
     "name": "Security",
     "floor": 5,
     "wing": "south",
-    "manager": "Vikas Singh",
-    "manager_email": "vikas.singh@acme.com",
+    "manager": "Vivek Krishnan",
+    "manager_email": "vivek.krishnan@acme.com",
     "buddy_pool": [
-      { "name": "Lakshmi Narayan", "email": "lakshmi.narayan@acme.com", "role_family": "infrastructure", "tenure_years": 6 }
+      { "name": "Christopher Diaz", "email": "christopher.diaz@acme.com", "role_family": "infrastructure", "tenure_years": 6 }
     ],
     "parking_eligibility": "all"
   }

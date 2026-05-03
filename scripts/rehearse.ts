@@ -168,21 +168,21 @@ async function checkRedis() {
 }
 
 async function triggerCascade() {
-  header("6. Live cascade test (Karan Shah)");
+  header("6. Live cascade test (Tyler Brooks)");
   try {
     const res = await fetch(`${ORCHESTRATOR}/run`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         candidate: {
-          id: "karan-shah",
-          name: "Karan Shah",
-          email: "karan.shah@acme.com",
+          id: "tyler-brooks",
+          name: "Tyler Brooks",
+          email: "tyler.brooks@acme.com",
           role: "Senior Frontend Engineer",
           team: "AI Platform",
-          manager: "Sneha Roy",
+          manager: "Rachel Thompson",
           joining_date: "2026-05-12",
-          current_city: "Mumbai",
+          current_city: "Chicago",
         },
       }),
       signal: AbortSignal.timeout(10_000),
@@ -206,7 +206,7 @@ async function triggerCascade() {
     while (Date.now() - start < TIMEOUT_MS) {
       done = 0;
       for (const s of SYSTEMS) {
-        const status = await r.hget(`tile:karan-shah:${s}`, "status");
+        const status = await r.hget(`tile:tyler-brooks:${s}`, "status");
         if (status === "done") done++;
       }
       if (done >= 12) break;

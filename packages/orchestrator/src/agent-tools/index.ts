@@ -25,7 +25,7 @@ export const AGENT_TOOLS: ChatCompletionTool[] = [
         properties: {
           name_or_id: {
             type: "string",
-            description: "The candidate's full name or employee ID (e.g. 'Priya Sharma' or 'priya-sharma')",
+            description: "The candidate's full name or employee ID (e.g. 'Jessica Cohen' or 'jessica-cohen')",
           },
         },
         required: ["name_or_id"],
@@ -109,7 +109,7 @@ export const AGENT_TOOLS: ChatCompletionTool[] = [
     function: {
       name: "reassign_buddy",
       description:
-        "Assign a SPECIFIC buddy to a candidate (overrides the agent's automatic pick). Use when HR names a particular person, e.g. 'make Rohan Desai her buddy' or 'reassign Karan's buddy to meera@acme.com'. The buddy must be in the candidate's team buddy pool.",
+        "Assign a SPECIFIC buddy to a candidate (overrides the agent's automatic pick). Use when HR names a particular person, e.g. 'make Daniel Garcia his buddy' or 'reassign Tyler's buddy to aisha@acme.com'. The buddy must be in the candidate's team buddy pool.",
       parameters: {
         type: "object",
         properties: {

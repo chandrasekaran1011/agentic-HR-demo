@@ -13,7 +13,7 @@ export function getCompany(): CompanyConfig {
     domain: process.env.COMPANY_DOMAIN ?? "acme.com",
     brandColor: process.env.COMPANY_BRAND_COLOR ?? "#3b82f6",
     logoUrl: process.env.COMPANY_LOGO_URL ?? "",
-    officeCity: process.env.COMPANY_OFFICE_CITY ?? "Chennai",
-    officeAddress: process.env.COMPANY_OFFICE_ADDRESS ?? "DLF IT Park, Chennai",
+    officeCity: process.env.COMPANY_OFFICE_CITY ?? "San Francisco",
+    officeAddress: process.env.COMPANY_OFFICE_ADDRESS ?? "1455 Market Street, San Francisco CA 94103",
   };
 }

@@ -52,12 +52,12 @@ npm run rehearse
 Click into the chat sidebar input (or press the mic button).
 
 ### Say (chat OR voice)
-> "What's the status of Priya Sharma's onboarding?"
+> "What's the status of Jessica Cohen's onboarding?"
 
 ### What happens
 - A `tool_call lookup_status` card appears in the sidebar (collapsed)
 - Agent replies with something like:
-  > "Priya Sharma is in progress — 8 of 12 actions complete. Pending: training, welcome, manager notify, parking."
+  > "Jessica Cohen is in progress — 8 of 12 actions complete. Pending: training, welcome, manager notify, parking."
 - The candidate row in the table briefly highlights (if you're on `/candidates`)
 
 ### Optional add-on
@@ -82,15 +82,15 @@ Click back to `/candidates`. Make sure you're on the candidates list page so the
 
 (Sara/the agent calls `list_pending_candidates` and reads back the queue from ATS.)
 
-> "Please onboard Karan Shah."
+> "Please onboard Tyler Brooks."
 
 (Notice: you don't say role, team, manager, or joining date — those came from ATS.)
 
 ### What happens (Sara may ask to confirm — say "yes")
 - Tool card appears: `start_onboarding({...})`
 - Tool result returns immediately
-- A **new row** appears in the candidates table for Karan with status `in_progress`
-- Click into Karan's detail page
+- A **new row** appears in the candidates table for Tyler with status `in_progress`
+- Click into Tyler's detail page
 
 ### On the detail page (the visual wow)
 - The 4×3 tile grid starts flipping:
@@ -114,7 +114,7 @@ Click back to `/candidates`. Make sure you're on the candidates list page so the
 **Frame:** "Now here's where most automation falls over. What if I made a mistake?"
 
 ### Say (voice is best for this)
-> "Wait — actually, Karan is joining AI Infrastructure, not AI Platform."
+> "Wait — actually, Tyler is joining AI Infrastructure, not AI Platform."
 
 ### What happens
 - Tool card: `amend_onboarding({...})`
@@ -170,7 +170,7 @@ She replies briefly — "My pleasure" or similar. The mic ring goes idle. End sc
 | Cascade gets stuck mid-flight | Open a new browser tab to the same candidate URL — SSE will catch up |
 | Tile shows red (error) | Either retry by amending, or skip — say "we'll inspect that one offline" |
 | Browser hangs entirely | F5 reload — all state is in Redis, no data lost |
-| Total stage failure | Use the **"Onboard manually"** button on the candidates table for Karan — bypasses the agent |
+| Total stage failure | Use the **"Onboard manually"** button on the candidates table for Tyler — bypasses the agent |
 | Email doesn't arrive | Voice over: "Sometimes ACS takes a few seconds — we'll come back to it." Don't dwell. |
 
 ---
@@ -182,12 +182,12 @@ She replies briefly — "My pleasure" or similar. The mic ring goes idle. End sc
 | Intent | Phrase |
 |---|---|
 | Show ATS queue | *"Who needs onboarding?"* / *"Show me the pending queue."* |
-| Status lookup | *"What's the status of Priya Sharma's onboarding?"* |
-| Status lookup (alt) | *"How is Vikram Iyer's onboarding going?"* |
-| Trigger cascade (ATS-supplied) | *"Please onboard Karan Shah."* |
-| Trigger cascade (alt) | *"Start onboarding for Anita Sharma."* |
-| Amend | *"Actually, change Karan's team to AI Infrastructure."* |
-| Amend (alt) | *"Update Karan's joining date to May 15 instead."* |
+| Status lookup | *"What's the status of Jessica Cohen's onboarding?"* |
+| Status lookup (alt) | *"How is Marcus Johnson's onboarding going?"* |
+| Trigger cascade (ATS-supplied) | *"Please onboard Tyler Brooks."* |
+| Trigger cascade (alt) | *"Start onboarding for Maya Krishnan."* |
+| Amend | *"Actually, change Tyler's team to AI Infrastructure."* |
+| Amend (alt) | *"Update Tyler's joining date to May 15 instead."* |
 | Closing | *"Sara, thank you."* / *"That's all."* |
 
 ### Phrases the agent should refuse (test these in rehearsal)
@@ -208,7 +208,7 @@ She replies briefly — "My pleasure" or similar. The mic ring goes idle. End sc
 - [ ] `npm run reset` was the LAST thing I did (no test data lingering)
 - [ ] `npm run rehearse` printed green
 - [ ] I know what to say in Act 1 (status lookup)
-- [ ] I know the candidate I'm onboarding in Act 2 (Karan Shah)
+- [ ] I know the candidate I'm onboarding in Act 2 (Tyler Brooks)
 - [ ] I know the correction in Act 3 (Platform → Infrastructure)
 - [ ] If voice fails, I default to chat without missing a beat
 - [ ] If Sara asks "can you confirm?" I just say "yes go ahead"

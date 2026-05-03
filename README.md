@@ -5,7 +5,7 @@ provisioned in 60–90 seconds.
 
 > Built as a townhall demo of "autonomy theatre": the audience watches a week
 > of manual onboarding work compress into stage time. Speak (or type) one
-> instruction — *"Onboard Karan Shah, Senior Frontend Engineer, AI Platform
+> instruction — *"Onboard Tyler Brooks, Senior Frontend Engineer, AI Platform
 > team, joining May 12"* — and watch HRMS, IT asset, software entitlements,
 > training plan, ID card, payroll, seating, parking, buddy assignment,
 > manager notification, document checklist, and welcome email all light up
@@ -34,7 +34,7 @@ A multi-agent system orchestrates twelve mock back-office workflows:
 
 A **supervisor agent** computes the desired end-state, runs the sub-agents in
 three parallel waves, and re-runs only the affected ones when an HR person
-amends the request mid-cascade ("actually, change Karan's team to AI
+amends the request mid-cascade ("actually, change Tyler's team to AI
 Infrastructure").
 
 The user-facing surface is a single web portal:
@@ -128,15 +128,15 @@ Open <http://localhost:3000> and log in as `hr` / `acme2026`.
 ### Try it
 
 **Status lookup**
-> "What's the status of Priya Sharma?"
+> "What's the status of Jessica Cohen?"
 
 **Onboard a new joiner**
-> "Onboard Karan Shah, Senior Frontend Engineer, AI Platform team, joining May 12"
+> "Onboard Tyler Brooks, Senior Frontend Engineer, AI Platform team, joining May 12"
 
 → confirmation → cascade fires → twelve tiles flip green in ~75s
 
 **Mid-cascade correction**
-> "Actually, change Karan's team to AI Infrastructure"
+> "Actually, change Tyler's team to AI Infrastructure"
 
 → supervisor diffs the desired-state, only affected sub-agents re-run.
 
@@ -283,18 +283,18 @@ T-30 minutes
   □ Browser fullscreen on /candidates
   □ Charge laptop, plug in close-talking mic
   □ Disable OS notifications except inbox toast
-  □ Test voice mic: "What's the status of Priya Sharma?"
+  □ Test voice mic: "What's the status of Jessica Cohen?"
   □ npm run reset                  fresh state for the live run
 
 T-0
   Act 1 — status lookup (chat or voice):
-    "What is the status of Priya Sharma?"
+    "What is the status of Jessica Cohen?"
   Act 2 — onboard new joiner:
-    "Onboard Karan Shah, Senior Frontend Engineer,
+    "Onboard Tyler Brooks, Senior Frontend Engineer,
      AI Platform team, joining May 12"
     → confirm details → cascade fires → 12 tiles flip green
   Act 3 — mic-drop correction:
-    "Actually, Karan is joining AI Infrastructure, not AI Platform"
+    "Actually, Tyler is joining AI Infrastructure, not AI Platform"
     → affected tiles re-amend → re-flip green
   Act 4 — closing reveal:
     Click /admin → big-number reveals animate in
