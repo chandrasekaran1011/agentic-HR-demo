@@ -221,8 +221,15 @@ fi
 if [[ "$DOMAIN" != "_" ]] && [[ -n "$LE_EMAIL" ]]; then
   c_blue "Installing certbot + requesting cert for $DOMAIN"
   $SUDO apt-get install -y certbot python3-certbot-nginx
-  $SUDO certbot --nginx -d "$DOMAIN" \
-        --non-interactive --agree-tos -m "$LE_EMAIL" --redirect
+  if ! $SUDO certbot --nginx -d "$DOMAIN" \
+        --non-interactive --agree-tos -m "$LE_EMAIL" --redirect; then
+    c_warn "certbot failed — most common cause is Azure NSG blocking inbound TCP 80/443."
+    c_warn "Fix in the Azure portal: VM → Networking → Add inbound port rules for 80 + 443"
+    c_warn "Verify from outside the VM:  curl -v http://$DOMAIN/"
+    c_warn "Then re-run cert step:       sudo certbot --nginx -d $DOMAIN \\"
+    c_warn "                                 --non-interactive --agree-tos -m $LE_EMAIL --redirect"
+    c_warn "(Continuing the install — the rest is independent of TLS.)"
+  fi
 elif [[ "$DOMAIN" != "_" ]]; then
   c_warn "No LE email passed — skipping TLS. Voice mode will NOT work over plain HTTP."
   c_warn "Add a cert later:  sudo apt-get install -y certbot python3-certbot-nginx"
