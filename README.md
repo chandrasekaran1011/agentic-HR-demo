@@ -370,10 +370,30 @@ Both `packages/portal` and `packages/orchestrator` have their own multi-stage
 
 ## Deploying to an Azure Ubuntu VM
 
-The fastest path to a public URL: spin up an Ubuntu VM in Azure, run the same
-docker-compose stack, and put nginx + Let's Encrypt in front of it for HTTPS
-(WebRTC microphone access requires HTTPS in modern browsers — the voice mode
-will not work over plain HTTP).
+There's a one-shot installer at [`deploy/install.sh`](deploy/install.sh)
+that does everything below for you (Docker, Node, swap, .env, build, seed,
+firewall, nginx, Let's Encrypt, systemd unit). The TL;DR is:
+
+```bash
+ssh azureuser@<vm-ip>
+sudo apt-get update && sudo apt-get install -y git
+git clone https://github.com/chandrasekaran1011/agentic-HR-demo.git hr-ai
+cd hr-ai
+
+# First run scaffolds .env from .env.example, then exits.
+sudo bash deploy/install.sh hr-ai.example.com you@example.com
+
+# Edit .env (Azure keys, ACS, COMPANY_*, AUTH_SESSION_SECRET) then re-run:
+nano .env
+sudo bash deploy/install.sh hr-ai.example.com you@example.com
+```
+
+The script is idempotent — safe to re-run after a `git pull`. Pass `_` as
+the domain to skip nginx and expose the portal on port 3000 directly (handy
+for IP-only smoke testing, but voice mode requires HTTPS so don't ship it
+that way).
+
+The rest of this section is the same flow done by hand.
 
 ### 1. Provision the VM
 
