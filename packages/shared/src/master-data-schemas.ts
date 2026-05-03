@@ -46,6 +46,17 @@ export const LaptopConfigSchema = z.object({
   accessories: z.array(z.string()),
 });
 
+// Full catalog of laptop SKUs HR can pick from when overriding the
+// role-default selection (e.g. "book Dell XPS 15 for Tyler").
+export const LaptopCatalogEntrySchema = z.object({
+  id: z.string(),
+  brand: z.string(),
+  model: z.string(),
+  ram: z.string(),
+  cpu: z.string(),
+  accessories: z.array(z.string()),
+});
+
 export const SalaryBandSchema = z.object({
   role_family: z.string(),
   level: z.string(),
@@ -104,3 +115,4 @@ export type Role = z.infer<typeof RoleSchema>;
 export type Software = z.infer<typeof SoftwareSchema>;
 export type Team = z.infer<typeof TeamSchema>;
 export type CandidateSeed = z.infer<typeof CandidateSeedSchema>;
+export type LaptopCatalogEntry = z.infer<typeof LaptopCatalogEntrySchema>;

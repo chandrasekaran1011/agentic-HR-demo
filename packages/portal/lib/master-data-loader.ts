@@ -8,6 +8,7 @@ import {
   RoleSoftwareMatrixSchema,
   TeamSchema,
   LaptopConfigSchema,
+  LaptopCatalogEntrySchema,
   SalaryBandSchema,
   DocumentChecklistSchema,
   TrainingMatrixSchema,
@@ -50,6 +51,18 @@ export async function loadMasterData(): Promise<void> {
   const laptops = await readJson("laptops.json", LaptopConfigSchema);
   for (const l of laptops) {
     await r.hset("master:laptops", `${l.role_family}:${l.level}`, JSON.stringify(l));
+  }
+
+  // Optional full SKU catalog used when HR overrides the role-default pick
+  // (e.g. "book a Dell XPS 15"). Indexed by id and by brand for cheap lookup.
+  try {
+    const catalog = await readJson("laptop-catalog.json", LaptopCatalogEntrySchema);
+    for (const entry of catalog) {
+      await r.hset("master:laptops:catalog", entry.id, JSON.stringify(entry));
+    }
+  } catch (e) {
+    // file is optional — fine to omit if HR doesn't want overrides
+    console.warn("[master-data] laptop-catalog.json missing or invalid; brand overrides disabled");
   }
 
   const bands = await readJson("salary-bands.json", SalaryBandSchema);

@@ -1,0 +1,17 @@
+[
+  { "id": "mbp-16-m3-pro",      "brand": "Apple",  "model": "MacBook Pro 16",            "ram": "32GB", "cpu": "M3 Pro",        "accessories": ["external monitor", "keyboard", "mouse"] },
+  { "id": "mbp-16-m3-max-64",   "brand": "Apple",  "model": "MacBook Pro 16",            "ram": "64GB", "cpu": "M3 Max",        "accessories": ["dual external monitors", "keyboard", "mouse"] },
+  { "id": "mbp-14-m3",          "brand": "Apple",  "model": "MacBook Pro 14",            "ram": "16GB", "cpu": "M3",            "accessories": ["external monitor"] },
+  { "id": "mba-15-m3",          "brand": "Apple",  "model": "MacBook Air 15",            "ram": "16GB", "cpu": "M3",            "accessories": ["external monitor"] },
+
+  { "id": "dell-xps-15",        "brand": "Dell",   "model": "Dell XPS 15",               "ram": "32GB", "cpu": "Intel Core i7", "accessories": ["external monitor", "keyboard", "mouse"] },
+  { "id": "dell-xps-13",        "brand": "Dell",   "model": "Dell XPS 13",               "ram": "16GB", "cpu": "Intel Core i7", "accessories": ["external monitor"] },
+  { "id": "dell-latitude-7440", "brand": "Dell",   "model": "Dell Latitude 7440",        "ram": "16GB", "cpu": "Intel Core i7", "accessories": ["external monitor"] },
+  { "id": "dell-precision-5680","brand": "Dell",   "model": "Dell Precision 5680",       "ram": "64GB", "cpu": "Intel Core i9", "accessories": ["dual external monitors", "keyboard", "mouse"] },
+
+  { "id": "lenovo-x1-carbon",   "brand": "Lenovo", "model": "Lenovo ThinkPad X1 Carbon", "ram": "32GB", "cpu": "Intel Core i7", "accessories": ["external monitor", "docking station"] },
+  { "id": "lenovo-thinkpad-p1", "brand": "Lenovo", "model": "Lenovo ThinkPad P1",        "ram": "64GB", "cpu": "Intel Core i9", "accessories": ["dual external monitors", "keyboard", "mouse"] },
+
+  { "id": "hp-elitebook-840",   "brand": "HP",     "model": "HP EliteBook 840",          "ram": "16GB", "cpu": "Intel Core i7", "accessories": ["external monitor"] },
+  { "id": "hp-zbook-studio",    "brand": "HP",     "model": "HP ZBook Studio",           "ram": "32GB", "cpu": "Intel Core i9", "accessories": ["external monitor", "keyboard"] }
+]

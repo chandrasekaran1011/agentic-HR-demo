@@ -60,6 +60,52 @@ export async function lookupLaptopFor(roleFamily: string, level: string): Promis
   return hgetParse<LaptopConfig>("master:laptops", `${roleFamily}:${level}`);
 }
 
+export interface LaptopCatalogEntry {
+  id: string;
+  brand: string;
+  model: string;
+  ram: string;
+  cpu: string;
+  accessories: string[];
+}
+
+export async function listLaptopCatalog(): Promise<LaptopCatalogEntry[]> {
+  const r = getRedis();
+  const all = await r.hgetall("master:laptops:catalog");
+  return Object.values(all).map((v) => JSON.parse(v) as LaptopCatalogEntry);
+}
+
+/**
+ * Resolve a free-text laptop hint ("dell", "Dell XPS 15", "thinkpad x1") to
+ * a catalog entry. Strategy: exact id → exact model → brand match → fuzzy
+ * (substring on model + brand). Returns null if nothing matches well enough.
+ */
+export async function resolveLaptopFromHint(hint: string): Promise<LaptopCatalogEntry | null> {
+  const catalog = await listLaptopCatalog();
+  if (catalog.length === 0) return null;
+  const q = hint.trim().toLowerCase();
+  if (!q) return null;
+
+  const byId = catalog.find((c) => c.id.toLowerCase() === q);
+  if (byId) return byId;
+
+  const byModel = catalog.find((c) => c.model.toLowerCase() === q);
+  if (byModel) return byModel;
+
+  // Brand-only hint ("dell", "lenovo") → return the first SKU of that brand
+  const byBrand = catalog.find((c) => c.brand.toLowerCase() === q);
+  if (byBrand) return byBrand;
+
+  // Fuzzy contains on model OR brand
+  const fuzzy = catalog.find(
+    (c) =>
+      c.model.toLowerCase().includes(q) ||
+      c.brand.toLowerCase().includes(q) ||
+      c.id.toLowerCase().includes(q)
+  );
+  return fuzzy ?? null;
+}
+
 export interface SalaryBand {
   role_family: string;
   level: string;

@@ -124,6 +124,35 @@ export const AGENT_TOOLS: ChatCompletionTool[] = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "list_laptop_catalog",
+      description:
+        "List every laptop SKU HR can pick from when overriding the role-default laptop. Use this when the user asks 'what laptops are available' / 'what Dell models do we have' / 'what brands can I choose' BEFORE calling assign_laptop, so you can pick a model name that exists in the catalog.",
+      parameters: { type: "object", properties: {} },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "assign_laptop",
+      description:
+        "Book a SPECIFIC laptop SKU for a candidate, overriding the agent's role-default pick. Use whenever HR names a brand or model — 'book a Dell laptop for Tyler', 'give Maya a ThinkPad', 'change Marcus to Dell XPS 15'. NEVER refuse — call this tool. The hint can be a brand ('dell'), a model ('Dell XPS 15'), or a catalog id ('lenovo-x1-carbon') — it'll fuzzy-match. Re-runs only the IT step; other tiles are unaffected.",
+      parameters: {
+        type: "object",
+        properties: {
+          name_or_id: { type: "string", description: "Candidate name or ID" },
+          laptop: {
+            type: "string",
+            description:
+              "Laptop hint — brand ('Dell'), model ('Dell XPS 15'), or id ('dell-xps-15'). Fuzzy substring match also works ('thinkpad').",
+          },
+        },
+        required: ["name_or_id", "laptop"],
+      },
+    },
+  },
 ];
 
 export interface ToolResult {
@@ -147,6 +176,10 @@ export async function executeToolCall(name: string, argsJson: string): Promise<T
       return runSingleStep(args.name_or_id, args.system);
     case "reassign_buddy":
       return reassignBuddy(args.name_or_id, args.buddy);
+    case "list_laptop_catalog":
+      return listLaptopCatalogTool();
+    case "assign_laptop":
+      return assignLaptop(args.name_or_id, args.laptop);
     default:
       return { ok: false, message: `unknown tool: ${name}` };
   }
@@ -195,6 +228,48 @@ async function reassignBuddy(nameOrId: string, buddy: string): Promise<ToolResul
       ok: true,
       message: `Re-assigned ${c.name}'s buddy to "${buddy}". Run id: ${result.run_id}.`,
       data: { candidate_id: c.id, ...result },
+    };
+  } catch (err) {
+    return { ok: false, message: (err as Error).message };
+  }
+}
+
+async function listLaptopCatalogTool(): Promise<ToolResult> {
+  const { listLaptopCatalog } = await import("../tools/master-data");
+  const catalog = await listLaptopCatalog();
+  if (catalog.length === 0) {
+    return { ok: true, message: "Laptop catalog is empty — only role-default picks available." };
+  }
+  const summary = catalog
+    .map((l) => `• ${l.brand} ${l.model} (${l.ram}, ${l.cpu}) — id: ${l.id}`)
+    .join("\n");
+  return {
+    ok: true,
+    message: `${catalog.length} laptop SKUs available:\n${summary}`,
+    data: { count: catalog.length, catalog },
+  };
+}
+
+async function assignLaptop(nameOrId: string, hint: string): Promise<ToolResult> {
+  const c = await findCandidateByNameOrId(nameOrId);
+  if (!c?.id) return { ok: false, message: `No candidate found matching "${nameOrId}".` };
+  if (!hint || !hint.trim()) {
+    return { ok: false, message: "Need a laptop hint (brand, model, or id)." };
+  }
+  const { resolveLaptopFromHint } = await import("../tools/master-data");
+  const picked = await resolveLaptopFromHint(hint);
+  if (!picked) {
+    return {
+      ok: false,
+      message: `No laptop in the catalog matches "${hint}". Call list_laptop_catalog to see what's available.`,
+    };
+  }
+  try {
+    const result = await runSingleSystem(c.id, "it", { laptop_hint: picked.id });
+    return {
+      ok: true,
+      message: `Booked ${picked.brand} ${picked.model} (${picked.ram}, ${picked.cpu}) for ${c.name}. Run id: ${result.run_id}.`,
+      data: { candidate_id: c.id, picked, ...result },
     };
   } catch (err) {
     return { ok: false, message: (err as Error).message };
