@@ -1,0 +1,25 @@
+# Build artifacts
+**/node_modules
+**/dist
+**/.next
+**/out
+**/coverage
+
+# Local env (containers receive env via env_file: in docker-compose.yml)
+.env
+**/.env
+.env.local
+**/.env.local
+
+# VCS / IDE / OS
+.git
+.gitignore
+.vscode
+.idea
+.DS_Store
+
+# Logs / test output
+*.log
+playwright-report
+test-results
+/tmp

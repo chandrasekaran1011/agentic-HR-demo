@@ -1,25 +1,24 @@
-FROM node:20-alpine AS deps
-WORKDIR /app
-COPY package*.json ./
-COPY tsconfig.base.json ./
-COPY packages/shared/package*.json ./packages/shared/
-COPY packages/orchestrator/package*.json ./packages/orchestrator/
-RUN npm ci
+# syntax=docker/dockerfile:1
+#
+# Orchestrator runs TypeScript directly via `tsx` — same as dev mode.
+# Single stage: install deps in place so per-package node_modules (e.g. mjml,
+# which npm refuses to hoist) end up where Node's resolver looks for them.
 
-FROM node:20-alpine AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-RUN npm --workspace=orchestrator run build
-
-FROM node:20-alpine AS runner
+FROM node:20-alpine
 WORKDIR /app
 ENV NODE_ENV=production
-COPY --from=builder /app/packages/orchestrator/dist ./packages/orchestrator/dist
-COPY --from=builder /app/packages/orchestrator/node_modules ./packages/orchestrator/node_modules
-COPY --from=builder /app/packages/orchestrator/package.json ./packages/orchestrator/package.json
-COPY --from=builder /app/packages/shared ./packages/shared
-COPY --from=builder /app/master-data ./master-data
-COPY --from=builder /app/seed-data ./seed-data
+
+# 1. Lockfile + workspace stubs — cached unless deps change
+COPY package*.json tsconfig.base.json ./
+COPY packages/shared/package*.json ./packages/shared/
+COPY packages/orchestrator/package*.json ./packages/orchestrator/
+RUN npm ci --include=dev
+
+# 2. Source — invalidates only on code changes
+COPY packages/shared ./packages/shared
+COPY packages/orchestrator ./packages/orchestrator
+COPY master-data ./master-data
+COPY seed-data ./seed-data
+
 EXPOSE 3001
-CMD ["node", "packages/orchestrator/dist/server.js"]
+CMD ["node_modules/.bin/tsx", "packages/orchestrator/src/server.ts"]
